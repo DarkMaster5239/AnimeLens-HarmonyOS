@@ -68,7 +68,9 @@ export class WaterFlowDataSource implements IDataSource {
 
     this.dataList.push(...list)
 
-    this.notifyAdd(start)
+    for (let index = start; index < this.dataList.length; index++) {
+      this.notifyAdd(index)
+    }
   }
 
   /**

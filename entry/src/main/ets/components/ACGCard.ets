@@ -53,7 +53,7 @@ export struct ACGCard {
       }
 
       // ===== 真实网络图片 =====
-      Image(this.item.imageUrl)
+      Image(this.item.previewUrl || this.item.imageUrl)
         .width("100%")
         .aspectRatio(this.item.width / (this.item.height || 1))
         .objectFit(ImageFit.Cover)
