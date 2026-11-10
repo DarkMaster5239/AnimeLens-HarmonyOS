@@ -30,6 +30,8 @@ export struct ACGCard {
         .onError(() => { this.hasError = true; this.isLoaded = false })
     }
     .width('100%')
+    .borderRadius(10).clip(true)
+    .accessibilityText(this.hasError ? '图片加载失败，点击重试' : `查看图片，${this.item.title || this.item.source}`)
     .onClick(() => {
       if (this.hasError) {
         this.hasError = false

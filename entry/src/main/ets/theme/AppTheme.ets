@@ -4,6 +4,9 @@ class AppThemeColors {
   glassControl: string = ''
   glassBorder: string = ''
   glassTrack: string = ''
+  navigationMaterial: string = ''
+  menuBackground: string = ''
+  menuSelection: string = ''
   imageErrorText: string = ''
   imagePlaceholder: string = ''
   overlayBadge: string = ''
@@ -46,6 +49,9 @@ export class AppTheme {
     glassControl: '#B8FFFFFF',
     glassBorder: '#DFFFFFFF',
     glassTrack: '#B8C8C8BE',
+    navigationMaterial: '#E8F7F4ED',
+    menuBackground: '#FFFDF8',
+    menuSelection: '#E3E9DE',
     imageErrorText: '#7A796E',
     imagePlaceholder: '#E9E5DB',
     overlayBadge: '#E6E9E3D7',
@@ -80,6 +86,9 @@ export class AppTheme {
     glassControl: '#B85D707B',
     glassBorder: '#667E929C',
     glassTrack: '#B85A6971',
+    navigationMaterial: '#E82A353C',
+    menuBackground: '#252E35',
+    menuSelection: '#465D68',
     imageErrorText: '#B9C8D3',
     imagePlaceholder: '#252C32',
     overlayBadge: '#CC303D47',
@@ -105,8 +114,8 @@ export class AppTheme {
     sourceButton: '#354650',
     sourceButtonText: '#BCDCE9',
     switchSelected: '#83BDD2',
-    tabSelected: '#365C6E',
-    tabUnselected: '#59666B',
+    tabSelected: '#A8D7EA',
+    tabUnselected: '#A8B5BC',
   }
 
   static color(isDark: boolean): AppThemeColors {

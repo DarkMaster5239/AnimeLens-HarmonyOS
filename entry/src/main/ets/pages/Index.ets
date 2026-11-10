@@ -35,27 +35,27 @@ export struct AnimeLensNavigation {
   @Builder
   galleryTab() {
     Column() {
-      Text('浏览')
-        .fontSize(16)
-        .fontWeight(this.currentIndex === 0 ? FontWeight.Bold : FontWeight.Medium)
-        .fontColor(this.currentIndex === 0 ? (AppTheme.color(this.isDark()).tabSelected) : (AppTheme.color(this.isDark()).tabUnselected))
+      Image($r('app.media.icon_gallery'))
+        .width(24).height(24)
+        .fillColor(this.currentIndex === 0 ? AppTheme.color(this.isDark()).tabSelected : AppTheme.color(this.isDark()).tabUnselected)
     }
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
+    .accessibilityText('浏览')
   }
 
   @Builder
   settingsTab() {
     Column() {
-      Text('设置')
-        .fontSize(16)
-        .fontWeight(this.currentIndex === 1 ? FontWeight.Bold : FontWeight.Medium)
-        .fontColor(this.currentIndex === 1 ? (AppTheme.color(this.isDark()).tabSelected) : (AppTheme.color(this.isDark()).tabUnselected))
+      Image($r('app.media.icon_settings'))
+        .width(24).height(24)
+        .fillColor(this.currentIndex === 1 ? AppTheme.color(this.isDark()).tabSelected : AppTheme.color(this.isDark()).tabUnselected)
     }
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
+    .accessibilityText('设置')
   }
 
   build() {
@@ -75,7 +75,8 @@ export struct AnimeLensNavigation {
         .barFloatingStyle(this.currentIndex !== 0 || this.navVisible ? {
           systemMaterial: new uiMaterial.ImmersiveMaterial({
             style: uiMaterial.ImmersiveStyle.ULTRA_THIN,
-            interactive: true
+            interactive: true,
+            materialColor: AppTheme.color(this.isDark()).navigationMaterial
           }),
           maskColor: Color.Transparent
         } : undefined)

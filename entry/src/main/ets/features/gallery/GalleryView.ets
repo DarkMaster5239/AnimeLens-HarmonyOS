@@ -1,3 +1,4 @@
+import { GlassIconButton } from '../../components/common/GlassIconButton'
 import { AppTheme } from '../../theme/AppTheme'
 import { ImageRepository, SourceType } from '../../service/ImageRepository'
 import { WaterFlowDataSource } from '../../datasource/WaterFlowDataSource'
@@ -32,6 +33,7 @@ export struct GalleryView {
   private requestVersion: number = 0
   private scrollDirection: number = 0
   private scrollDistance: number = 0
+  @State galleryWidth: number = 0
   @State page: number = 1
   @State loading: boolean = false
   @State refreshing: boolean = false
@@ -260,12 +262,11 @@ export struct GalleryView {
               ))
               .onClick(() => { this.detailControls = !this.detailControls })
             if (this.detailFailed) {
-              Button('原图加载失败，点击重试')
-                .backgroundColor(AppTheme.color(this.isDark).glassControl)
-                .backgroundBlurStyle(BlurStyle.Thin)
-                .fontColor(AppTheme.color(this.isDark).textPrimary)
-                .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
-                .onClick(() => { this.detailFailed = false; this.detailRetry++ })
+              Column({ space: 8 }) {
+                Text('原图加载失败').fontSize(14).fontColor(AppTheme.color(this.isDark).textPrimary)
+                GlassIconButton({ icon: $r('app.media.icon_refresh'), label: '重试加载原图', isDark: this.isDark,
+                  onAction: () => { this.detailFailed = false; this.detailRetry++ } })
+              }
             }
           }.width('100%').height('100%').clip(true)
         }, (item: ImageItem) => item.id)
@@ -278,13 +279,8 @@ export struct GalleryView {
       if (this.detailControls && this.detailItems.length > 0) {
         Column() {
           Row() {
-            Button('‹  返回')
-              .height(38).fontSize(14)
-              .backgroundColor(AppTheme.color(this.isDark).glassControl)
-              .backgroundBlurStyle(BlurStyle.Thin)
-              .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
-              .fontColor(AppTheme.color(this.isDark).overlayBadgeText)
-              .onClick(() => { this.detailOpen = false })
+            GlassIconButton({ icon: $r('app.media.icon_back'), label: '返回', isDark: this.isDark,
+              onAction: () => { this.detailOpen = false } })
             Blank()
             Text(`${this.detailIndex + 1} / ${this.detailItems.length}`)
               .fontColor(AppTheme.color(this.isDark).overlayTitle)
@@ -296,33 +292,19 @@ export struct GalleryView {
               .fontColor(AppTheme.color(this.isDark).overlayText)
             Text(`来源 · ${this.detailItems[this.detailIndex].source}`)
               .fontSize(12).fontColor(AppTheme.color(this.isDark).overlayMutedText)
-            Text('查看原图 ↗').fontSize(13)
-              .fontColor(AppTheme.color(this.isDark).overlayAccentText)
-              .onClick(() => { this.openOriginal() })
             Row({ space: 12 }) {
-              Button(this.fitMode === 'contain' ? '适应' : '铺满')
-                .height(40).fontSize(14)
-                .backgroundColor(AppTheme.color(this.isDark).glassControl)
-                .backgroundBlurStyle(BlurStyle.Thin)
-                .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
-                .fontColor(AppTheme.color(this.isDark).textPrimary)
-                .onClick(() => {
+              GlassIconButton({ icon: $r('app.media.icon_open'), label: '查看原图', isDark: this.isDark,
+                onAction: () => { this.openOriginal() } })
+              GlassIconButton({ icon: $r('app.media.icon_fit'),
+                label: this.fitMode === 'contain' ? '切换为铺满' : '切换为适应', isDark: this.isDark,
+                onAction: () => {
                   this.fitMode = this.fitMode === 'contain' ? 'cover' : 'contain'
                   this.imageScale = 1; this.imageOffsetX = 0; this.imageOffsetY = 0
-                })
-              Button(this.savingImage ? '保存中' : '保存').enabled(!this.savingImage)
-                .height(40).fontSize(14)
-                .backgroundColor(AppTheme.color(this.isDark).glassControl)
-                .backgroundBlurStyle(BlurStyle.Thin)
-                .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
-                .fontColor(AppTheme.color(this.isDark).textPrimary)
-                .onClick(() => { this.saveImage() })
-              Button('分享链接').height(40).fontSize(14)
-                .backgroundColor(AppTheme.color(this.isDark).glassControl)
-                .backgroundBlurStyle(BlurStyle.Thin)
-                .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
-                .fontColor(AppTheme.color(this.isDark).textPrimary)
-                .onClick(() => { this.shareImage() })
+                } })
+              GlassIconButton({ icon: $r('app.media.icon_save'), label: this.savingImage ? '保存中' : '保存图片',
+                isDark: this.isDark, busy: this.savingImage, onAction: () => { this.saveImage() } })
+              GlassIconButton({ icon: $r('app.media.icon_share'), label: '分享链接', isDark: this.isDark,
+                onAction: () => { this.shareImage() } })
             }.width('100%')
           }
           .width('100%').padding(18)
@@ -348,7 +330,10 @@ export struct GalleryView {
             .value(this.sourceName())
             .fontColor(AppTheme.color(this.isDark).textPrimary)
             .optionFontColor(AppTheme.color(this.isDark).textPrimary)
-            .optionBgColor(AppTheme.color(this.isDark).cardSurface)
+            .menuBackgroundColor(AppTheme.color(this.isDark).menuBackground)
+            .menuBackgroundBlurStyle(BlurStyle.NONE)
+            .selectedOptionBgColor(AppTheme.color(this.isDark).menuSelection)
+            .selectedOptionFontColor(AppTheme.color(this.isDark).textPrimary)
             .backgroundColor(AppTheme.color(this.isDark).glassControl)
             .backgroundBlurStyle(BlurStyle.Thin).borderRadius(20)
             .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
@@ -368,7 +353,11 @@ export struct GalleryView {
             FlowItem() { ACGCard({ item: item, isDark: this.isDark, onOpen: (selected: ImageItem) => this.openDetail(selected) }) }
           }, (item: ImageItem) => item.id)
         }
-        .columnsTemplate('1fr 1fr').columnsGap(0.5).rowsGap(0.5)
+        .columnsTemplate(this.galleryWidth >= 840 ? '1fr 1fr 1fr 1fr' : (this.galleryWidth >= 600 ? '1fr 1fr 1fr' : '1fr 1fr'))
+        .columnsGap(4).rowsGap(4).padding({ left: 4, right: 4 })
+        .onAreaChange((oldArea: Area, newArea: Area) => {
+          this.galleryWidth = Number(newArea.width)
+        })
         .onReachEnd(() => { this.loadMore() })
         .onScrollFrameBegin((offset: number, state: ScrollState) => {
           if (state !== ScrollState.Idle && Math.abs(offset) > 0.1) {
@@ -395,9 +384,11 @@ export struct GalleryView {
         Row() {
           if (this.loading) { LoadingProgress().width(20).height(20); Text(' 加载中…') }
           else if (this.enabledSources.length === 0) { Text('请在设置中启用图源') }
-          else if (this.loadError) { Button('加载失败，点击重试').backgroundColor(AppTheme.color(this.isDark).glassControl)
-            .backgroundBlurStyle(BlurStyle.Thin).fontColor(AppTheme.color(this.isDark).textPrimary)
-            .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder }).onClick(() => { this.load(this.ds.isEmpty() ? 1 : this.page + 1, this.requestVersion) }) }
+          else if (this.loadError) {
+            Text('加载失败').fontColor(AppTheme.color(this.isDark).textPrimary)
+            GlassIconButton({ icon: $r('app.media.icon_refresh'), label: '重试加载图片', isDark: this.isDark,
+              onAction: () => { this.load(this.ds.isEmpty() ? 1 : this.page + 1, this.requestVersion) } })
+          }
           else { Text('暂无图片') }
         }.width('100%').height(48).justifyContent(FlexAlign.Center)
           .margin({ bottom: this.bottomInset })
