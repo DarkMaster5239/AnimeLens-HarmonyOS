@@ -11,7 +11,7 @@ export struct ACGCard {
   @State retryKey: number = 0
 
   build() {
-    Stack({ alignContent: Alignment.Center }) {
+    Stack({ alignContent: Alignment.BottomStart }) {
       Column() {
         if (this.hasError) {
           Text('点击重试').fontSize(12).fontColor(AppTheme.color(this.isDark).imageErrorText)
@@ -28,9 +28,19 @@ export struct ACGCard {
         .opacity(this.isLoaded ? 1 : 0)
         .onComplete(() => { this.isLoaded = true; this.hasError = false })
         .onError(() => { this.hasError = true; this.isLoaded = false })
+      if (this.isLoaded) {
+        Column() {
+          Text(this.item.title || this.item.source)
+            .fontSize(11).fontWeight(FontWeight.Medium).fontColor(Color.White)
+            .maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
+        }
+        .width('100%').alignItems(HorizontalAlign.Start).padding({ left: 10, right: 10, top: 18, bottom: 10 })
+        .linearGradient({ angle: 180, colors: [['#00000000', 0], ['#C9000000', 1]] })
+      }
     }
     .width('100%')
-    .borderRadius(10).clip(true)
+    .borderRadius(16).clip(true)
+    .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
     .accessibilityText(this.hasError ? '图片加载失败，点击重试' : `查看图片，${this.item.title || this.item.source}`)
     .onClick(() => {
       if (this.hasError) {

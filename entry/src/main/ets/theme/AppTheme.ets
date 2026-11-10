@@ -39,14 +39,14 @@ class AppThemeColors {
 export class AppTheme {
   static readonly onPrimary: string = '#FFFFFF'
   static readonly danger: string = '#FF3B30'
-  static readonly info: string = '#007DFF'
-  static readonly success: string = '#34C759'
+  static readonly info: string = '#3F82FF'
+  static readonly success: string = '#00C997'
   static readonly divider: string = '#EEEEEE'
   static readonly searchBackground: string = '#222'
 
   private static readonly light: AppThemeColors = {
-    glassSurface: '#BFFFFFFF',
-    glassControl: '#B8FFFFFF',
+    glassSurface: '#E8FFFFFF',
+    glassControl: '#E6F0F4FC',
     glassBorder: '#DFFFFFFF',
     glassTrack: '#B8C8C8BE',
     navigationMaterial: '#E8F7F4ED',
@@ -59,12 +59,12 @@ export class AppTheme {
     overlayTitle: '#30251F',
     overlayText: '#382820',
     overlayMutedText: '#81766A',
-    overlayAccentText: '#738A72',
-    primaryButton: '#738A72',
+    overlayAccentText: '#286FF2',
+    primaryButton: '#286FF2',
     secondaryButton: '#E1DDCF',
     secondaryButtonText: '#483F34',
     overlaySurface: '#E6F7F2E9',
-    background: '#F7F2E9',
+    background: '#F2F5FA',
     galleryTitle: '#382820',
     galleryControlText: '#4B4435',
     controlBackground: '#E7E2D3',
@@ -76,18 +76,18 @@ export class AppTheme {
     cardSurface: '#FFFDF8',
     sourceButton: '#E6E1D5',
     sourceButtonText: '#617A62',
-    switchSelected: '#738A72',
-    tabSelected: '#526D50',
+    switchSelected: '#286FF2',
+    tabSelected: '#286FF2',
     tabUnselected: '#81766A',
   }
 
   private static readonly dark: AppThemeColors = {
-    glassSurface: '#B83B4851',
-    glassControl: '#B85D707B',
-    glassBorder: '#667E929C',
-    glassTrack: '#B85A6971',
-    navigationMaterial: '#E82A353C',
-    menuBackground: '#252E35',
+    glassSurface: '#E61D222D',
+    glassControl: '#E62C3444',
+    glassBorder: '#40FFFFFF',
+    glassTrack: '#FF30394A',
+    navigationMaterial: '#D91B2230',
+    menuBackground: '#1B202A',
     menuSelection: '#465D68',
     imageErrorText: '#B9C8D3',
     imagePlaceholder: '#252C32',
@@ -96,25 +96,25 @@ export class AppTheme {
     overlayTitle: '#FFFFFF',
     overlayText: '#F0F3F5',
     overlayMutedText: '#B8C5CE',
-    overlayAccentText: '#A8D7EA',
+    overlayAccentText: '#6FA3FF',
     primaryButton: '#547A8C',
-    secondaryButton: '#354650',
+    secondaryButton: '#2C3444',
     secondaryButtonText: '#E3EFF3',
     overlaySurface: '#E6222930',
-    background: '#171A20',
+    background: '#0E1015',
     galleryTitle: '#F3F5F5',
     galleryControlText: '#26333B',
     controlBackground: '#D7E3E8',
     textPrimary: '#F1F5F5',
     controlText: '#26333B',
     textSecondary: '#DCE7EC',
-    settingsPanel: '#252E35',
+    settingsPanel: '#1B202A',
     textMuted: '#B5C2CB',
-    cardSurface: '#252E35',
-    sourceButton: '#354650',
+    cardSurface: '#1B202A',
+    sourceButton: '#2C3444',
     sourceButtonText: '#BCDCE9',
-    switchSelected: '#83BDD2',
-    tabSelected: '#A8D7EA',
+    switchSelected: '#347BFF',
+    tabSelected: '#6FA3FF',
     tabUnselected: '#A8B5BC',
   }
 

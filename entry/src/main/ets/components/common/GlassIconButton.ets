@@ -18,6 +18,8 @@ export struct GlassIconButton {
     }
     .width(44).height(44)
     .backgroundColor(AppTheme.color(this.isDark).glassControl)
+    .backgroundBlurStyle(BlurStyle.Thin)
+    .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
     .enabled(!this.busy)
     .accessibilityText(this.label)
     .onClick(() => { this.onAction() })

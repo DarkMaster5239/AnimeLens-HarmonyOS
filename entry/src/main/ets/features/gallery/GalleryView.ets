@@ -123,6 +123,7 @@ export struct GalleryView {
         if (this.currentSource === next) this.scroller.scrollTo({ xOffset: 0, yOffset: cached.offsetY })
       }, 100)
     } else {
+      this.ds.clear()
       this.refresh()
     }
   }
@@ -334,10 +335,10 @@ export struct GalleryView {
         WaterFlow({ scroller: this.scroller, footer: this.galleryFooter }) {
           LazyForEach(this.ds, (item: ImageItem) => {
             FlowItem() { ACGCard({ item: item, isDark: this.isDark, onOpen: (selected: ImageItem) => this.openDetail(selected) }) }
-          }, (item: ImageItem) => item.id)
+          }, (item: ImageItem) => `${item.source}_${item.id}`)
         }
         .columnsTemplate(this.galleryWidth >= 840 ? '1fr 1fr 1fr 1fr' : (this.galleryWidth >= 600 ? '1fr 1fr 1fr' : '1fr 1fr'))
-        .columnsGap(4).rowsGap(4).padding({ left: 4, right: 4 })
+        .columnsGap(8).rowsGap(8).padding({ left: 16, right: 16 })
         .onAreaChange((oldArea: Area, newArea: Area) => {
           this.galleryWidth = Number(newArea.width)
         })
@@ -363,9 +364,9 @@ export struct GalleryView {
       }
       .layoutWeight(1).width('100%')
       .onRefreshing(() => { this.refresh() })
-      if (this.loading || this.loadError || this.enabledSources.length === 0 || (!this.hasMore && this.ds.isEmpty())) {
+      if ((this.loading && !this.refreshing) || this.loadError || this.enabledSources.length === 0 || (!this.hasMore && this.ds.isEmpty())) {
         Row() {
-          if (this.loading) { LoadingProgress().width(20).height(20); Text(' 加载中…') }
+          if (this.loading && !this.refreshing) { LoadingProgress().width(20).height(20); Text(' 加载中…') }
           else if (this.enabledSources.length === 0) { Text('请在设置中启用图源') }
           else if (this.loadError) {
             Text('加载失败').fontColor(AppTheme.color(this.isDark).textPrimary)

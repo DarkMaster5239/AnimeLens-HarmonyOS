@@ -11,10 +11,24 @@ export struct SettingsView {
   @StorageLink('imageFitMode') fitMode: string = 'contain'
   private repo = ImageRepository.getInstance()
   @State allConfigs: SourceConfig[] = []
+  @State testingAll: boolean = false
 
   aboutToAppear() { this.refreshUI() }
 
   private refreshUI() { this.allConfigs = [...this.repo.getConfigs()] }
+
+  private async testAll(): Promise<void> {
+    if (this.testingAll) return
+    this.testingAll = true
+    const enabled = this.allConfigs.filter((config: SourceConfig): boolean => config.isEnabled)
+    await Promise.all(enabled.map(async (config: SourceConfig): Promise<void> => {
+      const pending = this.repo.testSource(config.type)
+      this.refreshUI()
+      await pending
+      this.refreshUI()
+    }))
+    this.testingAll = false
+  }
 
   build() {
     Column() {
@@ -75,7 +89,8 @@ export struct SettingsView {
           }
           .width('100%').padding(18).alignItems(HorizontalAlign.Start)
           .backgroundColor(AppTheme.color(this.isDark).glassSurface)
-          .borderRadius(24)
+          .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
+          .borderRadius(20)
         }
         ListItem() {
           Column({ space: 14 }) {
@@ -98,24 +113,36 @@ export struct SettingsView {
           }
           .width('100%').padding(18).alignItems(HorizontalAlign.Start)
           .backgroundColor(AppTheme.color(this.isDark).glassSurface)
-          .borderRadius(24)
+          .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
+          .borderRadius(20)
         }
         ListItem() {
+          Row() {
           Column({ space: 3 }) {
             Text('图源管理').fontSize(17).fontWeight(FontWeight.Bold)
               .fontColor(AppTheme.color(this.isDark).textPrimary)
             Text('启用图源或测试连接状态').fontSize(12)
               .fontColor(AppTheme.color(this.isDark).textMuted)
-          }.alignItems(HorizontalAlign.Start).width('100%').padding({ left: 4, top: 8, bottom: 2 })
+          }.alignItems(HorizontalAlign.Start).layoutWeight(1)
+          Button(this.testingAll ? '测速中…' : '一键测速')
+            .fontSize(12).fontColor(AppTheme.info).backgroundColor(Color.Transparent)
+            .enabled(!this.testingAll).onClick(() => { this.testAll() })
+        }.width('100%').padding({ left: 4, top: 8, bottom: 2 })
         }
         ListItemGroup() {
           ForEach(this.allConfigs, (config: SourceConfig) => {
             ListItem() {
               Row({ space: 10 }) {
+                Column().width(8).height(8).borderRadius(4)
+                  .backgroundColor(!config.isEnabled ? AppTheme.color(this.isDark).textMuted :
+                    (config.status === ConnectionStatus.SUCCESS ? AppTheme.success :
+                      (config.status === ConnectionStatus.FAILED ? AppTheme.danger : AppTheme.info)))
                 Column({ space: 4 }) {
                   Text(config.name).fontSize(15).fontWeight(FontWeight.Medium)
                     .fontColor(AppTheme.color(this.isDark).textPrimary)
-                  if (config.status === ConnectionStatus.TESTING) {
+                  if (!config.isEnabled) {
+                    Text('已停用').fontSize(12).fontColor(AppTheme.color(this.isDark).textMuted)
+                  } else if (config.status === ConnectionStatus.TESTING) {
                     Row({ space: 5 }) {
                       LoadingProgress().width(12).height(12).color(AppTheme.info)
                       Text('正在测速…').fontSize(12).fontColor(AppTheme.info)
@@ -149,7 +176,8 @@ export struct SettingsView {
             }
           }, (config: SourceConfig) => `${config.name}_${config.status}_${config.latency}_${config.isEnabled}`)
         }
-        .backgroundColor(AppTheme.color(this.isDark).glassSurface).borderRadius(24)
+        .backgroundColor(AppTheme.color(this.isDark).glassSurface)
+        .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder }).borderRadius(20)
         ListItem() { Column().height(this.bottomInset + 4) }
       }
       .width('100%').layoutWeight(1)
