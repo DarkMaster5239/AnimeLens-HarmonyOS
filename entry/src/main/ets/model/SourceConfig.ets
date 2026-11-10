@@ -1,4 +1,6 @@
-import { SourceType } from '../service/ImageRepository'
+export enum SourceType {
+  PICSUM, KONACHAN, YANDERE, NEKOS_BEST, WAIFU_PICS, DANBOORU, GELBOORU, PIXIV
+}
 
 // 定义连接测试状态
 export enum ConnectionStatus {

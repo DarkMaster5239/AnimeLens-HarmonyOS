@@ -22,7 +22,7 @@ export class KonachanService implements IImageService {
     return url
   }
 
-  async load(page: number): Promise<ImageItem[]> {
+  async load(page: number, nsfwEnabled: boolean): Promise<ImageItem[]> {
     const limit = Constants.PAGE_SIZE || 20
     const url = `https://konachan.net/post.json?page=${page}&limit=${limit}&tags=rating:s`
     const result = await HttpClient.get<KonachanPost[]>(url)
@@ -47,7 +47,7 @@ export class KonachanService implements IImageService {
   }
 
   // 实现通断测试：请求 1 条数据，记录往返时间
-  async testConnection(): Promise<number> {
+  async testConnection(nsfwEnabled: boolean): Promise<number> {
     const startTime = Date.now()
     try {
       const url = `https://konachan.net/post.json?page=1&limit=1&tags=rating:s`

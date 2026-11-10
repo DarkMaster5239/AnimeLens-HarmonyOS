@@ -25,7 +25,7 @@ export class YandereService implements IImageService {
     return url // 直连原始高速域名 files.yande.re
   }
 
-  async load(page: number): Promise<ImageItem[]> {
+  async load(page: number, nsfwEnabled: boolean): Promise<ImageItem[]> {
     const url = `https://yande.re/post.json?page=${page}&limit=20&tags=rating:s`
     const result = await HttpClient.get<YanderePost[]>(url)
 
@@ -54,7 +54,7 @@ export class YandereService implements IImageService {
     })
   }
 
-  async testConnection(): Promise<number> {
+  async testConnection(nsfwEnabled: boolean): Promise<number> {
     const startTime = Date.now()
     try {
       const url = `https://yande.re/post.json?page=1&limit=1&tags=rating:s`

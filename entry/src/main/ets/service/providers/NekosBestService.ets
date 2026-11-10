@@ -1,8 +1,6 @@
 import { HttpClient } from '../../network/HttpClient'
 import { ImageItem } from '../../model/ImageItem'
 import { IImageService } from '../IImageService'
-// 1. 核心修复：引入单例 ImageRepository
-import { ImageRepository } from '../ImageRepository'
 
 interface NekoItem {
   url: string
@@ -18,9 +16,9 @@ interface NekosBestResponse {
 export class NekosBestService implements IImageService {
 
   // 接纳 page 参量以严格对齐接口规范
-  async load(page: number): Promise<ImageItem[]> {
+  async load(page: number, nsfwEnabled: boolean): Promise<ImageItem[]> {
     // 2. 动态决定请求类目：未开启走 neko，开启走 lewd
-    const category = ImageRepository.getInstance().isNsfwEnabled() ? "lewd" : "neko"
+    const category = nsfwEnabled ? "lewd" : "neko"
     const url = `https://nekos.best/api/v2/${category}?amount=20`
 
     const response = await HttpClient.get<NekosBestResponse>(url)
@@ -45,11 +43,11 @@ export class NekosBestService implements IImageService {
   /**
    * 接口实现：实现 NekosBest 平台的轻量化连通性测试
    */
-  async testConnection(): Promise<number> {
+  async testConnection(nsfwEnabled: boolean): Promise<number> {
     const startTime = Date.now()
     try {
       // 测速也需要同步跟随类目，防止类目不可达导致测试不准
-      const category = ImageRepository.getInstance().isNsfwEnabled() ? "lewd" : "neko"
+      const category = nsfwEnabled ? "lewd" : "neko"
       const url = `https://nekos.best/api/v2/${category}?amount=1`
       const testResult = await HttpClient.get<NekosBestResponse>(url)
 

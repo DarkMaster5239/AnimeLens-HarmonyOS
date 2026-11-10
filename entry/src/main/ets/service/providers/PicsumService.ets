@@ -15,7 +15,7 @@ interface PicsumImage {
 // 显式实现 IImageService 接口
 export class PicsumService implements IImageService {
 
-  async load(page: number): Promise<ImageItem[]> {
+  async load(page: number, nsfwEnabled: boolean): Promise<ImageItem[]> {
     const limit = Constants.PAGE_SIZE || 20
     const url = `https://picsum.photos/v2/list?page=${page}&limit=${limit}`
 
@@ -61,7 +61,7 @@ export class PicsumService implements IImageService {
   /**
    * 接口实现：实现 Picsum 平台的轻量化连通性测试
    */
-  async testConnection(): Promise<number> {
+  async testConnection(nsfwEnabled: boolean): Promise<number> {
     const startTime = Date.now()
     try {
       // 极简测试：仅加载第 1 页的 1 条数据来测算网络往返延迟

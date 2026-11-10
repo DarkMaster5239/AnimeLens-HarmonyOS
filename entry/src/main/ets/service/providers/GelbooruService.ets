@@ -20,7 +20,7 @@ interface GelbooruResponse {
 // 显式实现 IImageService 接口
 export class GelbooruService implements IImageService {
 
-  async load(page: number): Promise<ImageItem[]> {
+  async load(page: number, nsfwEnabled: boolean): Promise<ImageItem[]> {
     const pid = page - 1
     const url = `https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=20&pid=${pid}&tags=rating:general`
 
@@ -52,7 +52,7 @@ export class GelbooruService implements IImageService {
   /**
    * 接口实现：实现 Gelbooru 平台的轻量化连通性测试
    */
-  async testConnection(): Promise<number> {
+  async testConnection(nsfwEnabled: boolean): Promise<number> {
     const startTime = Date.now()
     try {
       // 测速请求（只请求一条数据，pid=0 代表第一页）

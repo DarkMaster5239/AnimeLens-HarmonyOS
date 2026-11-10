@@ -1,16 +1,13 @@
 import { GlassIconButton } from '../../components/common/GlassIconButton'
 import { AppTheme } from '../../theme/AppTheme'
-import { ImageRepository, SourceType } from '../../service/ImageRepository'
+import { ImageRepository } from '../../service/ImageRepository'
 import { WaterFlowDataSource } from '../../datasource/WaterFlowDataSource'
 import { ImageItem } from '../../model/ImageItem'
 import { ACGCard } from './ACGCard'
-import { SourceConfig } from '../../model/SourceConfig'
+import { ImageActions } from './ImageActions'
+import { SourceConfig, SourceType } from '../../model/SourceConfig'
 import hilog from '@ohos.hilog'
 import { common } from '@kit.AbilityKit'
-import { systemShare } from '@kit.ShareKit'
-import { uniformTypeDescriptor as utd } from '@kit.ArkData'
-import { picker, fileIo } from '@kit.CoreFileKit'
-import { http } from '@kit.NetworkKit'
 
 class GallerySourceState {
   items: ImageItem[] = []
@@ -31,6 +28,7 @@ export struct GalleryView {
   private scroller: Scroller = new Scroller()
   private sourceStates: Map<SourceType, GallerySourceState> = new Map<SourceType, GallerySourceState>()
   private requestVersion: number = 0
+  private filterRevision: number = this.repo.getFilterRevision()
   private scrollDirection: number = 0
   private scrollDistance: number = 0
   @State galleryWidth: number = 0
@@ -66,6 +64,19 @@ export struct GalleryView {
   aboutToAppear(): void { this.refreshTabs() }
 
   refreshTabs(): void {
+    if (this.filterRevision !== this.repo.getFilterRevision()) {
+      this.filterRevision = this.repo.getFilterRevision()
+      this.requestVersion++
+      this.sourceStates.clear()
+      this.ds.clear()
+      this.detailOpen = false
+      this.detailItems = []
+      this.loading = false
+      this.refreshing = false
+      this.loadError = false
+      this.page = 1
+      this.hasMore = true
+    }
     this.enabledSources = this.repo.getEnabledConfigs()
     if (this.enabledSources.length === 0) {
       this.requestVersion++
@@ -76,7 +87,6 @@ export struct GalleryView {
     if (!this.enabledSources.some((item: SourceConfig): boolean => item.type === this.currentSource)) {
       this.switchSource(this.enabledSources[0].type)
     } else if (this.ds.isEmpty() && !this.loading) {
-      this.repo.setSource(this.currentSource)
       this.refresh()
     }
   }
@@ -101,7 +111,6 @@ export struct GalleryView {
     this.saveSource()
     this.requestVersion++
     this.currentSource = next
-    this.repo.setSource(next)
     this.loading = false
     this.refreshing = false
     this.loadError = false
@@ -121,7 +130,7 @@ export struct GalleryView {
     this.loading = true
     this.loadError = false
     try {
-      const list = await this.repo.load(requestPage)
+      const list = await this.repo.load(this.currentSource, requestPage)
       if (version !== this.requestVersion) return
       if (requestPage === 1) this.ds.replace(list)
       else this.ds.append(list)
@@ -161,15 +170,9 @@ export struct GalleryView {
 
   async shareImage(): Promise<void> {
     if (this.detailItems.length === 0) return
-    const item = this.detailItems[this.detailIndex]
     try {
-      const data = new systemShare.SharedData({
-        utd: utd.UniformDataType.PLAIN_TEXT,
-        content: item.imageUrl,
-        title: item.title || item.source
-      })
-      const controller = new systemShare.ShareController(data)
-      await controller.show(this.getUIContext().getHostContext() as common.UIAbilityContext, {})
+      const context = this.getUIContext().getHostContext() as common.UIAbilityContext
+      await ImageActions.share(context, this.detailItems[this.detailIndex])
     } catch (err) {
       this.getUIContext().getPromptAction().showToast({ message: '无法打开分享面板' })
     }
@@ -179,7 +182,7 @@ export struct GalleryView {
     if (this.detailItems.length === 0) return
     try {
       const context = this.getUIContext().getHostContext() as common.UIAbilityContext
-      await context.startAbility({ action: 'ohos.want.action.viewData', uri: this.detailItems[this.detailIndex].imageUrl })
+      await ImageActions.openOriginal(context, this.detailItems[this.detailIndex])
     } catch (err) {
       this.getUIContext().getPromptAction().showToast({ message: '无法打开原图链接' })
     }
@@ -188,34 +191,14 @@ export struct GalleryView {
   async saveImage(): Promise<void> {
     if (this.savingImage || this.detailItems.length === 0) return
     this.savingImage = true
-    const item = this.detailItems[this.detailIndex]
-    const client = http.createHttp()
     try {
-      const response = await client.request(item.imageUrl, {
-        method: http.RequestMethod.GET,
-        expectDataType: http.HttpDataType.ARRAY_BUFFER,
-        connectTimeout: 15000,
-        readTimeout: 30000
-      })
-      if (response.responseCode !== 200 || !(response.result instanceof ArrayBuffer)) throw new Error('download failed')
-      const match = item.imageUrl.split('?')[0].match(/\.(jpg|jpeg|png|webp|gif)$/i)
-      const suffix = match ? match[1].toLowerCase() : 'bin'
-      const options = new picker.DocumentSaveOptions()
-      options.newFileNames = [`AnimeLens-${Date.now()}.${suffix}`]
-      const selector = new picker.DocumentViewPicker(this.getUIContext().getHostContext() as common.UIAbilityContext)
-      const uris = await selector.save(options)
-      if (uris.length === 0) return
-      const file = fileIo.openSync(uris[0], fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.TRUNC)
-      try {
-        const bytes = response.result as ArrayBuffer
-        const written = await fileIo.write(file.fd, bytes)
-        if (written !== bytes.byteLength) throw new Error('incomplete write')
-      } finally { fileIo.closeSync(file) }
-      this.getUIContext().getPromptAction().showToast({ message: '图片已保存' })
+      const context = this.getUIContext().getHostContext() as common.UIAbilityContext
+      if (await ImageActions.save(context, this.detailItems[this.detailIndex])) {
+        this.getUIContext().getPromptAction().showToast({ message: '图片已保存' })
+      }
     } catch (err) {
       this.getUIContext().getPromptAction().showToast({ message: '保存失败，请重试' })
     } finally {
-      client.destroy()
       this.savingImage = false
     }
   }

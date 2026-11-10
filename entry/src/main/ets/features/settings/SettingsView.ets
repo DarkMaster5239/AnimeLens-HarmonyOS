@@ -133,9 +133,9 @@ export struct SettingsView {
                   label: config.status === ConnectionStatus.TESTING ? `${config.name}测速中` : `测试${config.name}连接`,
                   busy: config.status === ConnectionStatus.TESTING,
                   onAction: async () => {
-                    config.status = ConnectionStatus.TESTING
+                    const pending = this.repo.testSource(config.type)
                     this.refreshUI()
-                    await this.repo.testSource(config.type)
+                    await pending
                     this.refreshUI()
                   }
                 })
@@ -143,7 +143,7 @@ export struct SettingsView {
                   .accessibilityText(`启用${config.name}`)
                   .selectedColor(AppTheme.color(this.isDark).switchSelected)
                   .backgroundColor(AppTheme.color(this.isDark).glassTrack).switchPointColor(AppTheme.onPrimary)
-                  .onChange((isOn: boolean) => { config.isEnabled = isOn; this.refreshUI() })
+                  .onChange((isOn: boolean) => { this.repo.setSourceEnabled(config.type, isOn); this.refreshUI() })
               }
               .width('100%').padding({ left: 18, right: 16, top: 15, bottom: 15 })
             }

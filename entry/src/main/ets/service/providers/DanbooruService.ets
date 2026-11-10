@@ -2,8 +2,6 @@ import { HttpClient } from '../../network/HttpClient'
 import { ImageItem } from '../../model/ImageItem'
 // 导入统一的服务接口
 import { IImageService } from '../IImageService'
-// 1. 核心修复：导入单例仓储管理器
-import { ImageRepository } from '../ImageRepository'
 
 interface DanbooruPost {
   id: number
@@ -18,9 +16,9 @@ interface DanbooruPost {
 // 显式实现 IImageService 接口
 export class DanbooruService implements IImageService {
 
-  async load(page: number): Promise<ImageItem[]> {
+  async load(page: number, nsfwEnabled: boolean): Promise<ImageItem[]> {
     // 2. 动态检测全局 NSFW 状态：未开启则只看 rating:general，开启则不设评级过滤限制（展示全部内容）
-    const ratingTag = ImageRepository.getInstance().isNsfwEnabled() ? "" : "rating:general"
+    const ratingTag = nsfwEnabled ? "" : "rating:general"
     const url = `https://danbooru.donmai.us/posts.json?page=${page}&limit=20&tags=${ratingTag}`
 
     const result = await HttpClient.get<DanbooruPost[]>(url)
@@ -49,11 +47,11 @@ export class DanbooruService implements IImageService {
   /**
    * 接口实现：实现 Danbooru 平台的轻量化连通性测试
    */
-  async testConnection(): Promise<number> {
+  async testConnection(nsfwEnabled: boolean): Promise<number> {
     const startTime = Date.now()
     try {
       // 测速也跟随全局状态保持一致的过滤条件
-      const ratingTag = ImageRepository.getInstance().isNsfwEnabled() ? "" : "rating:general"
+      const ratingTag = nsfwEnabled ? "" : "rating:general"
       const url = `https://danbooru.donmai.us/posts.json?page=1&limit=1&tags=${ratingTag}`
       const testResult = await HttpClient.get<DanbooruPost[]>(url)
 

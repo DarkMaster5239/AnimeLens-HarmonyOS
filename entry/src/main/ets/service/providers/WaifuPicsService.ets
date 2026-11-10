@@ -20,7 +20,7 @@ interface WaifuSingleResponse {
 export class WaifuPicsService implements IImageService {
 
   // 接入 page 参量以严格对齐契约接口规范
-  async load(page: number): Promise<ImageItem[]> {
+  async load(page: number, nsfwEnabled: boolean): Promise<ImageItem[]> {
     // 官方标准 API 地址确实为 api.waifu.pics
     const url = `https://api.waifu.pics/many/sfw/waifu`
 
@@ -51,7 +51,7 @@ export class WaifuPicsService implements IImageService {
    * 接口实现：实现 WaifuPics 平台的轻量化连通性测试
    * 采用 GET 方式请求单图端点，避开复杂的 POST 负载，测速效率极高
    */
-  async testConnection(): Promise<number> {
+  async testConnection(nsfwEnabled: boolean): Promise<number> {
     const startTime = Date.now()
     try {
       const url = `https://api.waifu.pics/sfw/waifu`

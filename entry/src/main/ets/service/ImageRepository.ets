@@ -1,5 +1,5 @@
 import { ImageItem } from '../model/ImageItem'
-import { SourceConfig, ConnectionStatus } from '../model/SourceConfig'
+import { SourceConfig, ConnectionStatus, SourceType } from '../model/SourceConfig'
 import { IImageService } from './IImageService'
 import { PicsumService } from './providers/PicsumService'
 import { KonachanService } from './providers/KonachanService'
@@ -10,17 +10,6 @@ import { DanbooruService } from './providers/DanbooruService'
 import { GelbooruService } from './providers/GelbooruService'
 import { PixivService } from './providers/PixivService'
 
-export enum SourceType {
-  PICSUM,
-  KONACHAN,
-  YANDERE,
-  NEKOS_BEST,
-  WAIFU_PICS,
-  DANBOORU,
-  GELBOORU,
-  PIXIV
-}
-
 export class ImageRepository {
   private static instance: ImageRepository | null = null
 
@@ -28,13 +17,17 @@ export class ImageRepository {
   private servicesMap: Map<SourceType, IImageService> = new Map()
   // 2. 内存维护图源配置列表
   private configs: SourceConfig[] = []
-  private currentType: SourceType = SourceType.PICSUM
+  private filterRevision: number = 0
 
   // ===== 新增：全局 NSFW 状态控制 =====
   private nsfwEnabled: boolean = false
 
-  private constructor() {
-    this.registerServices()
+  constructor(services?: Map<SourceType, IImageService>) {
+    if (services) {
+      this.servicesMap = services
+    } else {
+      this.registerServices()
+    }
     this.initDefaultConfigs()
   }
 
@@ -52,7 +45,14 @@ export class ImageRepository {
   }
 
   public setNsfwEnabled(enabled: boolean) {
-    this.nsfwEnabled = enabled
+    if (this.nsfwEnabled !== enabled) {
+      this.nsfwEnabled = enabled
+      this.filterRevision++
+    }
+  }
+
+  public getFilterRevision(): number {
+    return this.filterRevision
   }
 
   // 注册服务
@@ -88,47 +88,40 @@ export class ImageRepository {
     }
   }
 
-  // 获取所有图源配置（设置页使用）
+  private copyConfig(config: SourceConfig): SourceConfig {
+    return { type: config.type, name: config.name, isEnabled: config.isEnabled,
+      status: config.status, latency: config.latency }
+  }
+
   public getConfigs(): SourceConfig[] {
-    return this.configs
+    return this.configs.map((config: SourceConfig): SourceConfig => this.copyConfig(config))
   }
 
-  // 获取当前已启用的图源配置（主页渲染 Tab 导航栏使用）
   public getEnabledConfigs(): SourceConfig[] {
-    return this.configs.filter(item => item.isEnabled)
+    return this.getConfigs().filter((config: SourceConfig): boolean => config.isEnabled)
   }
 
-  // 动态切换图源
-  public setSource(type: SourceType) {
-    this.currentType = type
+  public setSourceEnabled(type: SourceType, enabled: boolean): void {
+    const config = this.configs.find((item: SourceConfig): boolean => item.type === type)
+    if (config) config.isEnabled = enabled
   }
 
-  // 统一加载接口
-  public async load(page: number): Promise<ImageItem[]> {
-    const service = this.servicesMap.get(this.currentType)
-    if (service) {
-      return await service.load(page)
-    }
-    const emptyList: ImageItem[] = []
-    return emptyList
-  }
-
-  /**
-   * 测试指定图源的连通性
-   */
-  public async testSource(type: SourceType): Promise<void> {
-    const config = this.configs.find(c => c.type === type)
+  public async load(type: SourceType, page: number): Promise<ImageItem[]> {
     const service = this.servicesMap.get(type)
+    if (!service) throw new Error('Unknown image source')
+    return await service.load(page, this.nsfwEnabled)
+  }
 
-    if (!config || !service) return
-
+  public async testSource(type: SourceType): Promise<void> {
+    const config = this.configs.find((item: SourceConfig): boolean => item.type === type)
+    const service = this.servicesMap.get(type)
+    if (!config || !service || config.status === ConnectionStatus.TESTING) return
     config.status = ConnectionStatus.TESTING
-    const latency = await service.testConnection()
-
-    if (latency >= 0) {
-      config.status = ConnectionStatus.SUCCESS
-      config.latency = latency
-    } else {
+    try {
+      const latency = await service.testConnection(this.nsfwEnabled)
+      config.status = latency >= 0 ? ConnectionStatus.SUCCESS : ConnectionStatus.FAILED
+      config.latency = latency >= 0 ? latency : 0
+    } catch (err) {
       config.status = ConnectionStatus.FAILED
       config.latency = 0
     }

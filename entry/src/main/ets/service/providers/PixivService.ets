@@ -1,7 +1,6 @@
 import { HttpClient } from '../../network/HttpClient'
 import { ImageItem } from '../../model/ImageItem'
 import { IImageService } from '../IImageService'
-import { ImageRepository } from '../ImageRepository'
 
 interface PixivPost {
   pid: number
@@ -23,9 +22,9 @@ interface PixivResponse {
 
 export class PixivService implements IImageService {
 
-  async load(page: number): Promise<ImageItem[]> {
+  async load(page: number, nsfwEnabled: boolean): Promise<ImageItem[]> {
     // 动态检测全局 NSFW 状态：未开启则 r18=0，开启则 r18=1 (混入)
-    const nsfwFlag = ImageRepository.getInstance().isNsfwEnabled() ? 1 : 0
+    const nsfwFlag = nsfwEnabled ? 1 : 0
     const url = `https://api.lolicon.app/setu/v2?r18=${nsfwFlag}&num=20`
 
     const response = await HttpClient.get<PixivResponse>(url)
@@ -54,7 +53,7 @@ export class PixivService implements IImageService {
     })
   }
 
-  async testConnection(): Promise<number> {
+  async testConnection(nsfwEnabled: boolean): Promise<number> {
     const startTime = Date.now()
     try {
       const url = `https://api.lolicon.app/setu/v2?r18=0&num=1`
