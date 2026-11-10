@@ -1,14 +1,14 @@
 import { ImageItem } from '../model/ImageItem'
 import { SourceConfig, ConnectionStatus } from '../model/SourceConfig'
 import { IImageService } from './IImageService'
-import { PicsumService } from './PicsumService'
-import { KonachanService } from './KonachanService'
-import { YandereService } from './YandereService'
-import { NekosBestService } from './NekosBestService'
-import { WaifuPicsService } from './WaifuPicsService'
-import { DanbooruService } from './DanbooruService'
-import { GelbooruService } from './GelbooruService'
-import { PixivService } from './PixivService'
+import { PicsumService } from './providers/PicsumService'
+import { KonachanService } from './providers/KonachanService'
+import { YandereService } from './providers/YandereService'
+import { NekosBestService } from './providers/NekosBestService'
+import { WaifuPicsService } from './providers/WaifuPicsService'
+import { DanbooruService } from './providers/DanbooruService'
+import { GelbooruService } from './providers/GelbooruService'
+import { PixivService } from './providers/PixivService'
 
 export enum SourceType {
   PICSUM,

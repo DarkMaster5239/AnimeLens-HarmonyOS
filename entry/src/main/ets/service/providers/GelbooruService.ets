@@ -1,7 +1,7 @@
-import { HttpClient } from '../network/HttpClient'
-import { ImageItem } from '../model/ImageItem'
+import { HttpClient } from '../../network/HttpClient'
+import { ImageItem } from '../../model/ImageItem'
 // 导入统一的服务接口
-import { IImageService } from './IImageService'
+import { IImageService } from '../IImageService'
 
 interface GelbooruPost {
   id: number

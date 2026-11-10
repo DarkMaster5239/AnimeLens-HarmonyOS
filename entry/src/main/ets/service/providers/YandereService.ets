@@ -1,6 +1,6 @@
-import { HttpClient } from '../network/HttpClient'
-import { ImageItem } from '../model/ImageItem'
-import { IImageService } from './IImageService'
+import { HttpClient } from '../../network/HttpClient'
+import { ImageItem } from '../../model/ImageItem'
+import { IImageService } from '../IImageService'
 
 interface YanderePost {
   id: number

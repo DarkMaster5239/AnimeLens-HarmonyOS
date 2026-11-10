@@ -1,7 +1,9 @@
+import { AppTheme } from '../../theme/AppTheme'
 @Component
 export struct SearchBar {
 
   @Link keyword: string
+  @Prop isDark: boolean = false
 
   build() {
 
@@ -18,7 +20,9 @@ export struct SearchBar {
 
     }
     .height(48)
-    .backgroundColor("#222")
+    .backgroundColor(AppTheme.color(this.isDark).glassControl)
+    .backgroundBlurStyle(BlurStyle.Thin)
+    .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
     .borderRadius(24)
     .padding(12)
 

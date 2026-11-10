@@ -1,8 +1,8 @@
-import { HttpClient } from '../network/HttpClient'
-import { ImageItem } from '../model/ImageItem'
-import { IImageService } from './IImageService'
+import { HttpClient } from '../../network/HttpClient'
+import { ImageItem } from '../../model/ImageItem'
+import { IImageService } from '../IImageService'
 // 1. 核心修复：引入单例 ImageRepository
-import { ImageRepository } from './ImageRepository'
+import { ImageRepository } from '../ImageRepository'
 
 interface NekoItem {
   url: string

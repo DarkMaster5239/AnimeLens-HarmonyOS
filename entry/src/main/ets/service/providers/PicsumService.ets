@@ -1,8 +1,8 @@
-import { HttpClient } from '../network/HttpClient'
-import { Constants } from '../common/Constants'
-import { ImageItem } from '../model/ImageItem'
+import { HttpClient } from '../../network/HttpClient'
+import { Constants } from '../../common/Constants'
+import { ImageItem } from '../../model/ImageItem'
 // 导入统一服务接口
-import { IImageService } from './IImageService'
+import { IImageService } from '../IImageService'
 
 interface PicsumImage {
   id: string

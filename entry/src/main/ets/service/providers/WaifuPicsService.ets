@@ -1,7 +1,7 @@
-import { HttpClient } from '../network/HttpClient'
-import { ImageItem } from '../model/ImageItem'
+import { HttpClient } from '../../network/HttpClient'
+import { ImageItem } from '../../model/ImageItem'
 // 导入统一接口
-import { IImageService } from './IImageService'
+import { IImageService } from '../IImageService'
 
 interface WaifuPicsResponse {
   files: string[]

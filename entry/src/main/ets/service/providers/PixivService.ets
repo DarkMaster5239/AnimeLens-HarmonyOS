@@ -1,7 +1,7 @@
-import { HttpClient } from '../network/HttpClient'
-import { ImageItem } from '../model/ImageItem'
-import { IImageService } from './IImageService'
-import { ImageRepository } from './ImageRepository'
+import { HttpClient } from '../../network/HttpClient'
+import { ImageItem } from '../../model/ImageItem'
+import { IImageService } from '../IImageService'
+import { ImageRepository } from '../ImageRepository'
 
 interface PixivPost {
   pid: number

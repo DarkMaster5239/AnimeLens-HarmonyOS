@@ -1,9 +1,9 @@
-import { HttpClient } from '../network/HttpClient'
-import { ImageItem } from '../model/ImageItem'
+import { HttpClient } from '../../network/HttpClient'
+import { ImageItem } from '../../model/ImageItem'
 // 导入统一的服务接口
-import { IImageService } from './IImageService'
+import { IImageService } from '../IImageService'
 // 1. 核心修复：导入单例仓储管理器
-import { ImageRepository } from './ImageRepository'
+import { ImageRepository } from '../ImageRepository'
 
 interface DanbooruPost {
   id: number

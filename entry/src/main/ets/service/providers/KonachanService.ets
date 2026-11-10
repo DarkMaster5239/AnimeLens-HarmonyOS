@@ -1,7 +1,7 @@
-import { HttpClient } from '../network/HttpClient'
-import { Constants } from '../common/Constants'
-import { ImageItem } from '../model/ImageItem'
-import { IImageService } from './IImageService'
+import { HttpClient } from '../../network/HttpClient'
+import { Constants } from '../../common/Constants'
+import { ImageItem } from '../../model/ImageItem'
+import { IImageService } from '../IImageService'
 
 interface KonachanPost {
   id: number
