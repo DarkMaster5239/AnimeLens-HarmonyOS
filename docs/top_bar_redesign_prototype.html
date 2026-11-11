@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACG绘见 - 顶部样式优化高保真交互原型</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-workspace: #0b0f19;
+      --card-bg: #131b2e;
+      --accent-blue: #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-purple: #a855f7;
+      --accent-pink: #ec4899;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1a2238 0%, #080c14 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px 60px;
+    }
+
+    header.meta-header {
+      text-align: center;
+      max-width: 860px;
+      margin-bottom: 28px;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #818cf8;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* 控制面板 */
+    .toolbar-bar {
+      display: flex;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      padding: 6px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tool-btn {
+      padding: 9px 20px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tool-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tool-btn.active {
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
+
+    /* 原型手机容器 */
+    .prototype-stage {
+      display: flex;
+      gap: 36px;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+      max-width: 1200px;
+      flex-wrap: wrap;
+    }
+
+    .phone-wrapper {
+      position: relative;
+      width: 375px;
+      height: 760px;
+      background: #090d16;
+      border-radius: 48px;
+      border: 8px solid #1e293b;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8),
+                  0 0 0 1px rgba(255, 255, 255, 0.1),
+                  inset 0 0 12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 手机听筒/摄像头灵动岛 */
+    .notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 24px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 999;
+    }
+
+    /* 状态栏 */
+    .status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .status-bar .icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    /* 滚动主体内容容器 */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+      scroll-behavior: smooth;
+    }
+
+    .screen-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 瀑布流模拟 */
+    .waterfall-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 10px 12px 90px;
+    }
+
+    .water-card {
+      background: #111827;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s;
+    }
+
+    .water-card:active {
+      transform: scale(0.98);
+    }
+
+    .water-card img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .water-card .tag-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      border: 0.5px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .water-card .card-info {
+      padding: 8px 10px;
+      background: #111827;
+    }
+
+    .water-card .card-author {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f1f5f9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .water-card .card-res {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* 底部浮动导航胶囊 */
+    .bottom-floating-dock {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(17, 24, 39, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      padding: 5px;
+      display: flex;
+      gap: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+
+    .dock-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .dock-btn.active {
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    /* =======================================================
+       顶部对比样式 1：当前版本 (CURRENT)
+       ======================================================= */
+    .top-header-current {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      background: rgba(21, 29, 47, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px 16px 12px;
+    }
+
+    .top-header-current .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .top-header-current .main-title {
+      font-size: 21px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .top-header-current .sub-title {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .top-header-current .old-refresh-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .top-header-current .old-chips-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .top-header-current .old-chips-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .top-header-current .old-chip {
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      background: #2a3445;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .top-header-current .old-chip.active {
+      background: linear-gradient(135deg, #3b82f6, #4f46e5);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    /* =======================================================
+       顶部对比样式 2：方案 A - 灵动微光胶囊 (RECOMMENDED - FLUID GLOW)
+       ======================================================= */
+    .top-header-solution-a {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      background: linear-gradient(180deg, rgba(11, 15, 25, 0.88) 0%, rgba(11, 15, 25, 0.72) 75%, rgba(11, 15, 25, 0.4) 100%);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 6px 14px 10px;
+      transition: all 0.3s;
+    }
+
+    .top-header-solution-a .header-primary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 38px;
+      margin-bottom: 8px;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-text-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .brand-text-main {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-pill-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 4px;
+      padding: 1px 5px;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-icon-pill {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .action-icon-pill:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      transform: rotate(45deg);
+    }
+
+    .action-icon-pill.spinning svg {
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 优化后的轻量胶囊导航条 */
+    .glow-chips-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 2px 2px;
+    }
+
+    .glow-chips-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .glow-chip {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glow-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+    }
+
+    .glow-chip.active {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(79, 70, 229, 0.95));
+      color: #ffffff;
+      font-weight: 700;
+      border-color: rgba(147, 197, 253, 0.4);
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.45),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transform: translateY(-0.5px);
+    }
+
+    .glow-chip .chip-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #60a5fa;
+      box-shadow: 0 0 6px #60a5fa;
+    }
+
+    /* =======================================================
+       顶部对比样式 3：方案 B - 极致纯净灵动下划线 (MINIMALIST GLOW UNDERLINE)
+       ======================================================= */
+    .top-header-solution-b {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 4px 16px 2px;
+    }
+
+    .top-header-solution-b .header-primary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 36px;
+    }
+
+    .minimal-tabs {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      margin-top: 4px;
+      padding-bottom: 2px;
+    }
+
+    .minimal-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .minimal-tab {
+      position: relative;
+      padding: 6px 0 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .minimal-tab:hover {
+      color: #cbd5e1;
+    }
+
+    .minimal-tab.active {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .minimal-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 3px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+
+    /* 方案对比解析卡片 */
+    .analysis-panel {
+      flex: 1;
+      min-width: 320px;
+      max-width: 480px;
+      background: rgba(19, 27, 46, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .analysis-panel h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+
+    .metric-box .label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .metric-box .value {
+      font-size: 20px;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 4px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .feature-list li {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+
+    .feature-list li .bullet {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .action-cta-box {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(99, 102, 241, 0.15));
+      border: 1px dashed rgba(99, 102, 241, 0.4);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      font-size: 13px;
+      color: #c7d2fe;
+    }
+
+    /* 动画与微交互 */
+    .live-pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="meta-header">
+    <div class="badge-pill">
+      <span class="live-pulse"></span>
+      <span>ACG绘见 · 顶栏 UI/UX 体验重构提案</span>
+    </div>
+    <h1>顶部导航视觉优化与交互原型</h1>
+    <p class="subtitle">针对原版顶栏空间占比过大、胶囊肥大割裂、毛玻璃灰沉等痛点进行的轻盈二次元极客化升级</p>
+  </header>
+
+  <!-- 模式切换与对比开关 -->
+  <div class="toolbar-bar">
+    <button class="tool-btn" onclick="switchMode('current')">
+      <span>🚫 原版现状 (Current)</span>
+    </button>
+    <button class="tool-btn active" onclick="switchMode('solution-a')">
+      <span>✨ 方案 A (推荐：灵动微光胶囊)</span>
+    </button>
+    <button class="tool-btn" onclick="switchMode('solution-b')">
+      <span>💎 方案 B (现代极简呼吸下划线)</span>
+    </button>
+  </div>
+
+  <div class="prototype-stage">
+    <!-- 手机屏幕 Mockup -->
+    <div class="phone-wrapper">
+      <div class="notch"></div>
+
+      <!-- 状态栏 -->
+      <div class="status-bar">
+        <span>03:56</span>
+        <div class="icons">
+          <span>5G</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- 动态替换的顶部导航栏区域 -->
+      <div id="dynamicTopHeader">
+        <!-- JS 动态注入三种顶栏模板 -->
+      </div>
+
+      <!-- 页面主体瀑布流 -->
+      <div class="screen-content" id="scrollContent">
+        <div class="waterfall-grid">
+          <!-- 模拟真实的二次元高清壁纸 -->
+          <div class="water-card">
+            <span class="tag-badge">PICSUM</span>
+            <img src="https://picsum.photos/id/1/400/260" alt="Card" style="height: 140px;">
+            <div class="card-info">
+              <div class="card-author">Alejandro Escamilla</div>
+              <div class="card-res">500 × 333 · 原画壁纸</div>
+            </div>
+          </div>
+
+          <div class="water-card">
+            <span class="tag-badge">PICSUM</span>
+            <img src="https://picsum.photos/id/2/400/320" alt="Card" style="height: 190px;">
+            <div class="card-info">
+              <div class="card-author">Studio Ghibli Art</div>
+              <div class="card-res">1920 × 1080 · 插画</div>
+            </div>
+          </div>
+
+          <div class="water-card">
+            <span class="tag-badge">KONACHAN</span>
+            <img src="https://picsum.photos/id/3/400/360" alt="Card" style="height: 210px;">
+            <div class="card-info">
+              <div class="card-author">Makoto Shinkai</div>
+              <div class="card-res">2560 × 1440 · 4K风景</div>
+            </div>
+          </div>
+
+          <div class="water-card">
+            <span class="tag-badge">YANDERE</span>
+            <img src="https://picsum.photos/id/4/400/280" alt="Card" style="height: 155px;">
+            <div class="card-info">
+              <div class="card-author">Cyberpunk Edgerunners</div>
+              <div class="card-res">3840 × 2160 · 概念原画</div>
+            </div>
+          </div>
+
+          <div class="water-card">
+            <span class="tag-badge">PICSUM</span>
+            <img src="https://picsum.photos/id/5/400/300" alt="Card" style="height: 170px;">
+            <div class="card-info">
+              <div class="card-author">Violet Evergarden</div>
+              <div class="card-res">2048 × 1536 · 精修肖像</div>
+            </div>
+          </div>
+
+          <div class="water-card">
+            <span class="tag-badge">WAIFU</span>
+            <img src="https://picsum.photos/id/6/400/310" alt="Card" style="height: 180px;">
+            <div class="card-info">
+              <div class="card-author">Genshin Impact</div>
+              <div class="card-res">1920 × 1080 · 同人插画</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部浮动导航胶囊 -->
+      <div class="bottom-floating-dock">
+        <div class="dock-btn active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <span>浏览</span>
+        </div>
+        <div class="dock-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>设置</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 方案解析与改进对比面板 -->
+    <div class="analysis-panel" id="analysisPanel">
+      <!-- 动态变化说明 -->
+    </div>
+  </div>
+
+  <script>
+    const sources = ['Picsum', 'Konachan', 'Yandere', 'NekosBest', 'WaifuPics', 'Danbooru'];
+    let currentSource = 'Picsum';
+    let currentMode = 'solution-a';
+
+    const descriptions = {
+      'current': {
+        title: '🚫 原版现状痛点诊断',
+        metrics: [
+          { label: '顶栏总高度', value: '112 px', desc: '垂直空间侵占大' },
+          { label: '胶囊按钮高度', value: '44 px', desc: '过于粗笨肥大' }
+        ],
+        features: [
+          '<strong>两级堆叠笨重</strong>：标题行与图源胶囊行完全割裂，高度达 112px，导致第一屏瀑布流内容被压缩，首屏看点受限。',
+          '<strong>胶囊质感僵硬</strong>：选中状态是高饱和度刺眼蓝紫渐变，未选中态是厚重深灰黑块，毫无二次元精致二次元氛围。',
+          '<strong>右侧刷新按钮孤立突兀</strong>：44px 的圆形大灰球悬挂右上角，既不符合拇指工效，又与下方的下拉刷新手势功能重叠。',
+          '<strong>毛玻璃通透性不足</strong>：背景采用了接近 95% 不透明度的深暗黑灰，沉闷呆板，无法透出下方插画色彩。'
+        ],
+        advice: '建议采用方案 A，将高度压缩 30% 以上，胶囊轻量化，增加微光与晶透通透感。'
+      },
+      'solution-a': {
+        title: '✨ 方案 A：灵动微光通透胶囊 (推荐)',
+        metrics: [
+          { label: '顶栏总高度', value: '82 px', desc: '节约 30px (+27%插画视野)' },
+          { label: '微光胶囊高度', value: '32 px', desc: '轻盈贴合手指点按' }
+        ],
+        features: [
+          '<strong>品牌感微光 Logo</strong>：精致晶格角标 + "ACG 绘见"渐变质感标题，搭配精致的小 Badge，更契合年轻极客与二次元审美。',
+          '<strong>超薄轻透胶囊 (32px)</strong>：高度从 44px 降为 32px，选中态拥有 Subtle Glow (蓝紫双色渐变微发光 + 内发光边框)，未选中态轻盈通透。',
+          '<strong>精致微型操作按钮</strong>：将 44px 笨重圆圈改为 32px 晶透微动效按钮，点击带平滑自旋加载动效，与品牌栏完美平齐。',
+          '<strong>多重高斯模糊亚克力渐变</strong>：顶部深色平滑过渡到半透透明，滚动时下方的二次元插画微微透出，空气感与层次感倍增！'
+        ],
+        advice: '最平衡的现代化方案，既保持图源切换的直观性，又极具科技与动漫质感。'
+      },
+      'solution-b': {
+        title: '💎 方案 B：现代极简呼吸下划线',
+        metrics: [
+          { label: '顶栏总高度', value: '74 px', desc: '极致压缩 (-34%高度)' },
+          { label: 'Tab 高度', value: '28 px', desc: '纯净字体加发光条' }
+        ],
+        features: [
+          '<strong>去胶囊化极简排版</strong>：摒弃厚重圆角药丸胶囊，借鉴 Pixiv 与国际顶尖插画 App 风格，采用优雅排版。',
+          '<strong>极光呼吸条 (Glow Indicator)</strong>：当前选中项字体加粗至 15px 高亮白色，底部附带高饱和霓虹极光线条，滑动指示非常清晰。',
+          '<strong>最大化插画展示面积</strong>：顶栏极薄，把所有视觉焦点让位给瀑布流壁纸内容本身。',
+          '<strong>沉浸式轻背景</strong>：极细微晶边框，超高模糊度，让整个界面像一块浮动的玻璃晶片。'
+        ],
+        advice: '适合追求极致内容沉浸、喜欢简约干净现代化 UI 风格的用户。'
+      }
+    };
+
+    function selectSource(name) {
+      currentSource = name;
+      renderHeader();
+    }
+
+    function triggerRefresh(btn) {
+      btn.classList.add('spinning');
+      setTimeout(() => btn.classList.remove('spinning'), 800);
+    }
+
+    function renderHeader() {
+      const container = document.getElementById('dynamicTopHeader');
+      if (currentMode === 'current') {
+        container.className = 'top-header-current';
+        container.innerHTML = `
+          <div class="title-row">
+            <div>
+              <div class="main-title">ACG绘见</div>
+              <div class="sub-title">精选二次元插画与壁纸</div>
+            </div>
+            <div class="old-refresh-btn" onclick="triggerRefresh(this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+            </div>
+          </div>
+          <div class="old-chips-scroll">
+            ${sources.map(s => `
+              <div class="old-chip ${s === currentSource ? 'active' : ''}" onclick="selectSource('${s}')">
+                ${s}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (currentMode === 'solution-a') {
+        container.className = 'top-header-solution-a';
+        container.innerHTML = `
+          <div class="header-primary">
+            <div class="brand-mark">
+              <div class="brand-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <div class="brand-text-wrap">
+                <span class="brand-text-main">ACG绘见</span>
+                <span class="brand-pill-tag">LENS</span>
+              </div>
+            </div>
+            <div class="header-actions">
+              <div class="action-icon-pill" title="刷新图库" onclick="triggerRefresh(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="glow-chips-scroll">
+            ${sources.map(s => `
+              <div class="glow-chip ${s === currentSource ? 'active' : ''}" onclick="selectSource('${s}')">
+                ${s === currentSource ? '<span class="chip-dot"></span>' : ''}
+                <span>${s}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (currentMode === 'solution-b') {
+        container.className = 'top-header-solution-b';
+        container.innerHTML = `
+          <div class="header-primary">
+            <div class="brand-mark">
+              <span class="brand-text-main" style="font-size: 19px;">ACG绘见</span>
+            </div>
+            <div class="header-actions">
+              <div class="action-icon-pill" title="刷新图库" onclick="triggerRefresh(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="minimal-tabs">
+            ${sources.map(s => `
+              <div class="minimal-tab ${s === currentSource ? 'active' : ''}" onclick="selectSource('${s}')">
+                ${s}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    }
+
+    function renderAnalysis() {
+      const d = descriptions[currentMode];
+      const panel = document.getElementById('analysisPanel');
+      panel.innerHTML = `
+        <h2>
+          <span>${d.title}</span>
+        </h2>
+        <div class="metric-row">
+          <div class="metric-box">
+            <div class="label">${d.metrics[0].label}</div>
+            <div class="value">${d.metrics[0].value}</div>
+            <div style="font-size: 11px; color: #64748b; margin-top:2px;">${d.metrics[0].desc}</div>
+          </div>
+          <div class="metric-box">
+            <div class="label">${d.metrics[1].label}</div>
+            <div class="value">${d.metrics[1].value}</div>
+            <div style="font-size: 11px; color: #64748b; margin-top:2px;">${d.metrics[1].desc}</div>
+          </div>
+        </div>
+        <ul class="feature-list">
+          ${d.features.map(f => `
+            <li>
+              <span class="bullet">✓</span>
+              <span>${f}</span>
+            </li>
+          `).join('')}
+        </ul>
+        <div class="action-cta-box">
+          💡 ${d.advice}
+        </div>
+      `;
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick').includes(mode)) {
+          btn.classList.add('active');
+        }
+      });
+      renderHeader();
+      renderAnalysis();
+    }
+
+    // 初始化
+    switchMode('solution-a');
+  </script>
+</body>
+</html>

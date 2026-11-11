@@ -247,7 +247,7 @@ export struct GalleryView {
               .onClick(() => { this.detailControls = !this.detailControls })
             if (this.detailFailed) {
               Column({ space: 8 }) {
-                Text('原图加载失败').fontSize(14).fontColor(AppTheme.color(this.isDark).textPrimary)
+                Text('原图加载失败').fontSize(14).fontColor(Color.White)
                 GlassIconButton({ icon: $r('app.media.icon_refresh'), label: '重试加载原图', isDark: this.isDark,
                   onAction: () => { this.detailFailed = false; this.detailRetry++ } })
               }
@@ -262,75 +262,204 @@ export struct GalleryView {
       })
       if (this.detailControls && this.detailItems.length > 0) {
         Column() {
+          // Top Control Bar
           Row() {
-            GlassIconButton({ icon: $r('app.media.icon_back'), label: '返回', isDark: this.isDark,
-              onAction: () => { this.detailOpen = false } })
+            GlassIconButton({
+              icon: $r('app.media.icon_back'),
+              label: '返回',
+              isDark: true,
+              onAction: () => { this.detailOpen = false }
+            })
             Blank()
-            Text(`${this.detailIndex + 1} / ${this.detailItems.length}`)
-              .fontColor(AppTheme.color(this.isDark).overlayTitle)
-          }.width('100%').padding(16)
+            Row({ space: 4 }) {
+              Text(`${this.detailIndex + 1}`)
+                .fontSize(14)
+                .fontWeight(FontWeight.Bold)
+                .fontColor(Color.White)
+              Text(`/ ${this.detailItems.length}`)
+                .fontSize(12)
+                .fontColor('rgba(255, 255, 255, 0.6)')
+            }
+            .padding({ left: 14, right: 14, top: 7, bottom: 7 })
+            .backgroundColor('rgba(11, 15, 25, 0.65)')
+            .backgroundBlurStyle(BlurStyle.Thin)
+            .borderRadius(16)
+            .border({ width: 0.8, color: 'rgba(255, 255, 255, 0.15)' })
+          }
+          .width('100%')
+          .padding({ left: 16, right: 16, top: 16 })
+
           Blank()
-          Column({ space: 10 }) {
-            Text(this.detailItems[this.detailIndex].title || this.detailItems[this.detailIndex].source)
-              .fontSize(15).fontWeight(FontWeight.Medium).maxLines(2)
-              .fontColor(AppTheme.color(this.isDark).overlayText)
-            Text(`来源 · ${this.detailItems[this.detailIndex].source}`)
-              .fontSize(12).fontColor(AppTheme.color(this.isDark).overlayMutedText)
-            Row({ space: 12 }) {
-              GlassIconButton({ icon: $r('app.media.icon_open'), label: '查看原图', isDark: this.isDark,
-                onAction: () => { this.openOriginal() } })
-              GlassIconButton({ icon: $r('app.media.icon_fit'),
-                label: this.fitMode === 'contain' ? '切换为铺满' : '切换为适应', isDark: this.isDark,
+
+          // Bottom Floating Island Card
+          Column({ space: 12 }) {
+            Row() {
+              Column({ space: 3 }) {
+                Text(this.detailItems[this.detailIndex].title || this.detailItems[this.detailIndex].source)
+                  .fontSize(15)
+                  .fontWeight(FontWeight.Bold)
+                  .maxLines(1)
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                  .fontColor(AppTheme.color(this.isDark).overlayTitle)
+
+                Row({ space: 6 }) {
+                  Text(this.detailItems[this.detailIndex].source.toUpperCase())
+                    .fontSize(11)
+                    .fontWeight(FontWeight.Bold)
+                    .fontColor(AppTheme.color(this.isDark).overlayAccentText)
+
+                  if (this.detailItems[this.detailIndex].width > 0 && this.detailItems[this.detailIndex].height > 0) {
+                    Text(`· ${this.detailItems[this.detailIndex].width} × ${this.detailItems[this.detailIndex].height}`)
+                      .fontSize(11)
+                      .fontColor(AppTheme.color(this.isDark).overlayMutedText)
+                  }
+                }
+              }
+              .layoutWeight(1)
+              .alignItems(HorizontalAlign.Start)
+            }
+            .width('100%')
+
+            Row({ space: 10 }) {
+              // Primary Action: Save Wallpapers
+              Button({ type: ButtonType.Normal }) {
+                Row({ space: 6 }) {
+                  if (this.savingImage) {
+                    LoadingProgress().width(18).height(18).color(Color.White)
+                    Text('保存中…').fontSize(13).fontWeight(FontWeight.Medium).fontColor(Color.White)
+                  } else {
+                    Image($r('app.media.icon_save')).width(18).height(18).fillColor(Color.White)
+                    Text('保存壁纸').fontSize(13).fontWeight(FontWeight.Bold).fontColor(Color.White)
+                  }
+                }
+              }
+              .layoutWeight(1)
+              .height(44)
+              .borderRadius(22)
+              .backgroundColor(AppTheme.color(this.isDark).primaryButton)
+              .linearGradient({ direction: GradientDirection.Right, colors: [['#2563EB', 0], ['#4F46E5', 1]] })
+              .shadow({ radius: 8, color: 'rgba(10, 89, 247, 0.35)', offsetY: 2 })
+              .enabled(!this.savingImage)
+              .onClick(() => { this.saveImage() })
+
+              // Secondary Actions
+              GlassIconButton({
+                icon: $r('app.media.icon_open'),
+                label: '查看原图',
+                isDark: this.isDark,
+                onAction: () => { this.openOriginal() }
+              })
+              GlassIconButton({
+                icon: $r('app.media.icon_fit'),
+                label: this.fitMode === 'contain' ? '切换为铺满' : '切换为适应',
+                isDark: this.isDark,
                 onAction: () => {
                   this.fitMode = this.fitMode === 'contain' ? 'cover' : 'contain'
                   this.imageScale = 1; this.imageOffsetX = 0; this.imageOffsetY = 0
-                } })
-              GlassIconButton({ icon: $r('app.media.icon_save'), label: this.savingImage ? '保存中' : '保存图片',
-                isDark: this.isDark, busy: this.savingImage, onAction: () => { this.saveImage() } })
-              GlassIconButton({ icon: $r('app.media.icon_share'), label: '分享链接', isDark: this.isDark,
-                onAction: () => { this.shareImage() } })
-            }.width('100%')
+                }
+              })
+              GlassIconButton({
+                icon: $r('app.media.icon_share'),
+                label: '分享链接',
+                isDark: this.isDark,
+                onAction: () => { this.shareImage() }
+              })
+            }
+            .width('100%')
           }
-          .width('100%').padding(18)
+          .width('92%')
+          .margin({ bottom: 20 })
+          .padding(16)
           .backgroundColor(AppTheme.color(this.isDark).glassSurface)
           .backgroundBlurStyle(BlurStyle.Thin)
-          .borderRadius({ topLeft: 24, topRight: 24 })
-          .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
-        }.width('100%').height('100%').hitTestBehavior(HitTestMode.Transparent)
+          .borderRadius(22)
+          .shadow({ radius: 18, color: '#40000000', offsetY: 6 })
+          .border({ width: 0.8, color: AppTheme.color(this.isDark).glassBorder })
+        }
+        .width('100%')
+        .height('100%')
+        .hitTestBehavior(HitTestMode.Transparent)
       }
     }
     .width('100%').height('100%')
-    .backgroundColor(AppTheme.color(this.isDark).background)
+    .backgroundColor('#000000')
   }
 
   build() {
     Column() {
-      Row() {
-        Text('AnimeLens').fontSize(24).fontWeight(FontWeight.Bold)
-          .fontColor(AppTheme.color(this.isDark).galleryTitle)
-        Blank()
+      // 1. Frosted Navigation Header with Horizontal Chips
+      Column() {
+        Row() {
+          Column({ space: 2 }) {
+            Text('ACG绘见')
+              .fontSize(22)
+              .fontWeight(FontWeight.Bold)
+              .fontColor(AppTheme.color(this.isDark).galleryTitle)
+            Text('精选二次元插画与壁纸')
+              .fontSize(11)
+              .fontColor(AppTheme.color(this.isDark).textMuted)
+          }
+          .alignItems(HorizontalAlign.Start)
+
+          Blank()
+
+          GlassIconButton({
+            icon: $r('app.media.icon_refresh'),
+            label: '刷新画廊',
+            isDark: this.isDark,
+            btnSize: 44,
+            iconSize: 18,
+            busy: this.refreshing,
+            onAction: () => { this.refresh() }
+          })
+        }
+        .width('100%')
+        .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+
         if (this.enabledSources.length > 0) {
-          Select(this.sourceOptions())
-            .value(this.sourceName())
-            .fontColor(AppTheme.color(this.isDark).textPrimary)
-            .optionFontColor(AppTheme.color(this.isDark).textPrimary)
-            .menuBackgroundColor(AppTheme.color(this.isDark).menuBackground)
-            .menuBackgroundBlurStyle(BlurStyle.NONE)
-            .selectedOptionBgColor(AppTheme.color(this.isDark).menuSelection)
-            .selectedOptionFontColor(AppTheme.color(this.isDark).textPrimary)
-            .backgroundColor(AppTheme.color(this.isDark).glassControl)
-            .backgroundBlurStyle(BlurStyle.Thin).borderRadius(20)
-            .border({ width: 1, color: AppTheme.color(this.isDark).glassBorder })
-            .onSelect((index: number) => {
-              if (index >= 0 && index < this.enabledSources.length) this.switchSource(this.enabledSources[index].type)
-            })
+          Scroll() {
+            Row({ space: 8 }) {
+              ForEach(this.enabledSources, (config: SourceConfig) => {
+                Button({ type: ButtonType.Capsule }) {
+                  Text(config.name)
+                    .fontSize(12)
+                    .fontWeight(this.currentSource === config.type ? FontWeight.Bold : FontWeight.Medium)
+                    .fontColor(this.currentSource === config.type ? Color.White : AppTheme.color(this.isDark).textSecondary)
+                }
+                .height(44)
+                .padding({ left: 16, right: 16 })
+                .borderRadius(22)
+                .backgroundColor(this.currentSource === config.type ?
+                  AppTheme.color(this.isDark).primaryButton :
+                  AppTheme.color(this.isDark).glassControl)
+                .linearGradient({ direction: GradientDirection.Right, colors: this.currentSource === config.type ?
+                  [['#3B82F6', 0], ['#4F46E5', 1]] : [['#00000000', 0], ['#00000000', 1]] })
+                .border({
+                  width: this.currentSource === config.type ? 0 : 0.8,
+                  color: AppTheme.color(this.isDark).glassBorder
+                })
+                .accessibilityText(`${config.name}${this.currentSource === config.type ? '，已选中' : ''}`)
+                .onClick(() => {
+                  this.switchSource(config.type)
+                })
+              }, (config: SourceConfig) => `${config.type}_${config.name}`)
+            }
+            .padding({ left: 16, right: 16, bottom: 8 })
+          }
+          .scrollable(ScrollDirection.Horizontal)
+          .scrollBar(BarState.Off)
         }
       }
-      .width('100%').height(this.isHeaderVisible ? 60 : 0)
+      .width('100%')
+      .height(this.isHeaderVisible ? (this.enabledSources.length > 0 ? 112 : 60) : 0)
       .opacity(this.isHeaderVisible ? 1 : 0)
-      .padding({ left: 16, right: 16 }).clip(true)
-      .backgroundColor(AppTheme.color(this.isDark).background)
+      .clip(true)
+      .backgroundColor(AppTheme.color(this.isDark).glassSurface)
+      .backgroundBlurStyle(BlurStyle.Thin)
+      .border({ width: { bottom: 0.8 }, color: AppTheme.color(this.isDark).glassBorder })
       .animation({ duration: 220, curve: Curve.EaseInOut })
+
+      // 2. Waterfall Feed
       Refresh({ refreshing: $$this.refreshing }) {
         WaterFlow({ scroller: this.scroller, footer: this.galleryFooter }) {
           LazyForEach(this.ds, (item: ImageItem) => {
@@ -338,7 +467,7 @@ export struct GalleryView {
           }, (item: ImageItem) => `${item.source}_${item.id}`)
         }
         .columnsTemplate(this.galleryWidth >= 840 ? '1fr 1fr 1fr 1fr' : (this.galleryWidth >= 600 ? '1fr 1fr 1fr' : '1fr 1fr'))
-        .columnsGap(8).rowsGap(8).padding({ left: 16, right: 16 })
+        .columnsGap(8).rowsGap(8).padding({ left: 10, right: 10, top: 8 })
         .onAreaChange((oldArea: Area, newArea: Area) => {
           this.galleryWidth = Number(newArea.width)
         })
@@ -364,18 +493,35 @@ export struct GalleryView {
       }
       .layoutWeight(1).width('100%')
       .onRefreshing(() => { this.refresh() })
+
+      // 3. Status Banner
       if ((this.loading && !this.refreshing) || this.loadError || this.enabledSources.length === 0 || (!this.hasMore && this.ds.isEmpty())) {
-        Row() {
-          if (this.loading && !this.refreshing) { LoadingProgress().width(20).height(20); Text(' 加载中…') }
-          else if (this.enabledSources.length === 0) { Text('请在设置中启用图源') }
-          else if (this.loadError) {
-            Text('加载失败').fontColor(AppTheme.color(this.isDark).textPrimary)
-            GlassIconButton({ icon: $r('app.media.icon_refresh'), label: '重试加载图片', isDark: this.isDark,
-              onAction: () => { this.load(this.ds.isEmpty() ? 1 : this.page + 1, this.requestVersion) } })
+        Row({ space: 8 }) {
+          if (this.loading && !this.refreshing) {
+            LoadingProgress().width(18).height(18).color(AppTheme.color(this.isDark).primaryButton)
+            Text('加载中…').fontSize(12).fontColor(AppTheme.color(this.isDark).textSecondary)
+          } else if (this.enabledSources.length === 0) {
+            Text('请在设置中启用图源').fontSize(12).fontColor(AppTheme.color(this.isDark).textMuted)
+          } else if (this.loadError) {
+            Text('加载失败').fontSize(12).fontColor(AppTheme.danger)
+            GlassIconButton({
+              icon: $r('app.media.icon_refresh'),
+              label: '重试加载图片',
+              isDark: this.isDark,
+              btnSize: 44,
+              iconSize: 16,
+              onAction: () => { this.load(this.ds.isEmpty() ? 1 : this.page + 1, this.requestVersion) }
+            })
+          } else {
+            Text('已加载全部插画').fontSize(12).fontColor(AppTheme.color(this.isDark).textMuted)
           }
-          else { Text('暂无图片') }
-        }.width('100%').height(48).justifyContent(FlexAlign.Center)
-          .margin({ bottom: this.bottomInset })
+        }
+        .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+        .borderRadius(20)
+        .backgroundColor(AppTheme.color(this.isDark).glassSurface)
+        .backgroundBlurStyle(BlurStyle.Thin)
+        .border({ width: 0.8, color: AppTheme.color(this.isDark).glassBorder })
+        .margin({ bottom: this.bottomInset + 8 })
       }
     }
     .width('100%').height('100%')

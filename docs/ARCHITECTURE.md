@@ -1,4 +1,4 @@
-# AnimeLens 应用架构
+# ACG绘见 应用架构
 
 本项目以单个 entry 模块实现逻辑分层，遵循[鸿蒙分层架构设计](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-layered-architecture-design/)的依赖方向；现阶段不额外拆分 HAR/HSP。页面仍采用 ArkUI V1 状态管理，参考[状态刷新控制](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-state-refresh/)。
 

@@ -14,3 +14,10 @@
 # ===== 以下为您额外追加的 2 条鸿蒙优化规则 =====
 **/.preview
 /.codegenie
+
+# Local development tools and machine-specific configuration
+/.deveco-cli-local/
+/.codex/config.toml
+
+# Temporary simulator captures
+/settings-luminous-*.png

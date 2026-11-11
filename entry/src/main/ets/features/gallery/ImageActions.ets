@@ -31,7 +31,7 @@ export class ImageActions {
       const match = item.imageUrl.split('?')[0].match(/\.(jpg|jpeg|png|webp|gif)$/i)
       const suffix = match ? match[1].toLowerCase() : 'bin'
       const options = new picker.DocumentSaveOptions()
-      options.newFileNames = [`AnimeLens-${Date.now()}.${suffix}`]
+      options.newFileNames = [`ACG绘见-${Date.now()}.${suffix}`]
       const selector = new picker.DocumentViewPicker(context)
       const uris = await selector.save(options)
       if (uris.length === 0) return false

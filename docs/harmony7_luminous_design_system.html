@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HarmonyOS 7 · 沉浸光感设计语言规范 (Immersive Luminous Design System)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* 基础色彩系统：极光与深空光谱 (Aurora & Deep Space) */
+      --hm-color-bg-deep: #080C14;
+      --hm-color-bg-base: #0B101D;
+      --hm-color-surface-glass: rgba(18, 26, 44, 0.65);
+      --hm-color-surface-floating: rgba(22, 33, 58, 0.75);
+
+      /* 光感渐变能量谱 */
+      --hm-luminous-blue: #0A59F7;
+      --hm-luminous-cyan: #00D5FF;
+      --hm-luminous-purple: #7847EB;
+      --hm-luminous-pink: #FF3388;
+      --hm-luminous-emerald: #00E599;
+      --hm-luminous-amber: #FF9F0A;
+      --hm-luminous-danger: #FF3B30;
+
+      /* 文字色彩规范 */
+      --hm-text-primary: #FFFFFF;
+      --hm-text-secondary: rgba(240, 244, 255, 0.72);
+      --hm-text-tertiary: rgba(200, 215, 245, 0.45);
+      --hm-text-disabled: rgba(255, 255, 255, 0.22);
+
+      /* 光晕边缘与微晶描边 (Rim Light & Refraction Border) */
+      --hm-rim-light: rgba(255, 255, 255, 0.16);
+      --hm-rim-light-highlight: rgba(255, 255, 255, 0.28);
+      --hm-glow-primary: rgba(10, 89, 247, 0.45);
+      --hm-glow-cyan: rgba(0, 213, 255, 0.35);
+
+      /* 鸿蒙平滑曲率半径 (Harmony Squircle Curvature) */
+      --hm-radius-xs: 8px;
+      --hm-radius-sm: 14px;
+      --hm-radius-md: 20px;
+      --hm-radius-lg: 28px;
+      --hm-radius-pill: 9999px;
+
+      /* 弹性动画物理阻尼曲线 */
+      --hm-spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --hm-spring-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* 亮色模式适配 (Light Spatial Mode) */
+    body.light-mode {
+      --hm-color-bg-deep: #EEF2F9;
+      --hm-color-bg-base: #F5F7FC;
+      --hm-color-surface-glass: rgba(255, 255, 255, 0.75);
+      --hm-color-surface-floating: rgba(255, 255, 255, 0.88);
+      --hm-text-primary: #0F172A;
+      --hm-text-secondary: #475569;
+      --hm-text-tertiary: #94A3B8;
+      --hm-text-disabled: #CBD5E1;
+      --hm-rim-light: rgba(15, 23, 42, 0.08);
+      --hm-rim-light-highlight: rgba(255, 255, 255, 0.95);
+      --hm-glow-primary: rgba(10, 89, 247, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      background: var(--hm-color-bg-deep);
+      color: var(--hm-text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.4s ease, color 0.4s ease;
+      position: relative;
+    }
+
+    /* 背景沉浸微光光场 (Luminous Ambient Aura) */
+    .ambient-aurora {
+      position: fixed;
+      top: -150px;
+      left: 20%;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(10, 89, 247, 0.28) 0%, rgba(120, 71, 235, 0.15) 50%, transparent 70%);
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+      animation: auroraFloat 18s ease-in-out infinite alternate;
+    }
+
+    .ambient-aurora-2 {
+      position: fixed;
+      bottom: -100px;
+      right: 15%;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 213, 255, 0.18) 0%, rgba(255, 51, 136, 0.12) 50%, transparent 70%);
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      animation: auroraFloat 22s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes auroraFloat {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(80px, 60px) scale(1.15); }
+    }
+
+    .page-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 40px 24px 100px;
+    }
+
+    /* 顶部导航与控制栏 */
+    .top-meta-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--hm-rim-light);
+    }
+
+    .brand-logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .harmony-symbol {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0A59F7 0%, #00D5FF 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px var(--hm-glow-primary), inset 0 1px 1px rgba(255,255,255,0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .harmony-symbol::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      filter: blur(2px);
+      opacity: 0.6;
+    }
+
+    .brand-text h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .version-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(10, 89, 247, 0.15);
+      border: 1px solid rgba(10, 89, 247, 0.35);
+      color: #38BDF8;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text p {
+      font-size: 13px;
+      color: var(--hm-text-secondary);
+      margin-top: 2px;
+    }
+
+    .theme-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: var(--hm-radius-pill);
+      background: var(--hm-color-surface-glass);
+      border: 1px solid var(--hm-rim-light);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      color: var(--hm-text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s var(--hm-spring-smooth);
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--hm-rim-light-highlight);
+      transform: translateY(-1px);
+    }
+
+    /* 哲学理念与设计柱石卡片 */
+    .philosophy-banner {
+      background: var(--hm-color-surface-glass);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1px solid var(--hm-rim-light);
+      border-radius: var(--hm-radius-lg);
+      padding: 32px;
+      margin-bottom: 48px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--hm-rim-light-highlight);
+      display: grid;
+      grid-template-columns: 1.2fr 1.8fr;
+      gap: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .philosophy-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 400px;
+      height: 100%;
+      background: radial-gradient(circle at 100% 0%, rgba(10, 89, 247, 0.2), transparent 70%);
+      pointer-events: none;
+    }
+
+    .philo-intro h2 {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--hm-text-primary) 30%, var(--hm-luminous-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .philo-intro p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--hm-text-secondary);
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .pillar-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--hm-rim-light);
+      border-radius: var(--hm-radius-md);
+      padding: 16px;
+      transition: all 0.3s var(--hm-spring-smooth);
+    }
+
+    .pillar-item:hover {
+      border-color: rgba(10, 89, 247, 0.4);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .pillar-title {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--hm-text-primary);
+    }
+
+    .pillar-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--hm-luminous-cyan);
+      box-shadow: 0 0 10px var(--hm-luminous-cyan);
+    }
+
+    .pillar-desc {
+      font-size: 12px;
+      color: var(--hm-text-tertiary);
+      line-height: 1.5;
+    }
+
+    /* 组件展示矩阵布局 */
+    .components-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 28px;
+    }
+
+    .section-card {
+      background: var(--hm-color-surface-glass);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid var(--hm-rim-light);
+      border-radius: var(--hm-radius-lg);
+      padding: 28px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 var(--hm-rim-light-highlight);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      transition: border-color 0.3s;
+    }
+
+    .section-card:hover {
+      border-color: var(--hm-rim-light-highlight);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .card-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--hm-text-primary);
+    }
+
+    .card-header .caption {
+      font-size: 12px;
+      color: var(--hm-text-tertiary);
+      margin-top: 3px;
+    }
+
+    .component-spec-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--hm-text-secondary);
+      border: 1px solid var(--hm-rim-light);
+    }
+
+    .preview-box {
+      background: rgba(0, 0, 0, 0.18);
+      border: 1px dashed var(--hm-rim-light);
+      border-radius: var(--hm-radius-md);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      justify-content: center;
+      min-height: 140px;
+    }
+
+    /* ========================================================
+       1. 按钮组件库 (Buttons) - 晶耀光感体系
+       ======================================================== */
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* 1.1 晶耀主按钮 (Primary Luminous) */
+    .hm-btn-primary {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      height: 44px;
+      border-radius: var(--hm-radius-pill);
+      background: linear-gradient(135deg, #0A59F7 0%, #2979FF 50%, #7847EB 100%);
+      border: none;
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--hm-glow-primary),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.4),
+                  inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+      transition: all 0.22s var(--hm-spring-bounce);
+      overflow: hidden;
+    }
+
+    .hm-btn-primary::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transition: 0.5s;
+    }
+
+    .hm-btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 28px rgba(10, 89, 247, 0.6), inset 0 1px 2px rgba(255,255,255,0.6);
+    }
+
+    .hm-btn-primary:hover::after {
+      left: 100%;
+    }
+
+    .hm-btn-primary:active {
+      transform: translateY(1px) scale(0.97);
+      box-shadow: 0 2px 10px rgba(10, 89, 247, 0.4);
+    }
+
+    /* 1.2 微光玻璃辅按钮 (Secondary Frosted Glass) */
+    .hm-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      height: 44px;
+      border-radius: var(--hm-radius-pill);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--hm-rim-light);
+      color: var(--hm-text-primary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 var(--hm-rim-light-highlight);
+      transition: all 0.2s var(--hm-spring-smooth);
+    }
+
+    .hm-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: var(--hm-rim-light-highlight);
+      transform: translateY(-1.5px);
+    }
+
+    .hm-btn-secondary:active {
+      transform: translateY(1px) scale(0.98);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* 1.3 晶晶图标按钮 (Glass Icon Button - 鸿蒙圆环微态) */
+    .hm-btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--hm-rim-light);
+      backdrop-filter: blur(16px);
+      color: var(--hm-text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), inset 0 1px 0 var(--hm-rim-light-highlight);
+      transition: all 0.22s var(--hm-spring-bounce);
+    }
+
+    .hm-btn-icon:hover {
+      transform: scale(1.08) rotate(5deg);
+      border-color: var(--hm-luminous-cyan);
+      box-shadow: 0 4px 18px var(--hm-glow-cyan);
+    }
+
+    .hm-btn-icon:active {
+      transform: scale(0.92);
+    }
+
+    /* 1.4 幽灵微光胶囊按钮 (Ghost Luminous Tag) */
+    .hm-btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      height: 34px;
+      border-radius: var(--hm-radius-pill);
+      background: rgba(10, 89, 247, 0.12);
+      border: 1px solid rgba(10, 89, 247, 0.3);
+      color: #38BDF8;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .hm-btn-ghost:hover {
+      background: rgba(10, 89, 247, 0.22);
+      box-shadow: 0 0 14px rgba(10, 89, 247, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ========================================================
+       2. 标签栏与切换器 (Tabs & Segmented Controls)
+       ======================================================== */
+    /* 2.1 鸿蒙悬浮流光胶囊分段器 (Sliding Glow Pill Segment) */
+    .hm-segmented-dock {
+      display: inline-flex;
+      padding: 5px;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: var(--hm-radius-pill);
+      border: 1px solid var(--hm-rim-light);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+      gap: 4px;
+      width: fit-content;
+    }
+
+    .hm-seg-item {
+      padding: 7px 18px;
+      border-radius: var(--hm-radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--hm-text-secondary);
+      cursor: pointer;
+      transition: all 0.24s var(--hm-spring-smooth);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .hm-seg-item:hover {
+      color: var(--hm-text-primary);
+    }
+
+    .hm-seg-item.active {
+      background: linear-gradient(135deg, #0A59F7 0%, #2563EB 50%, #4F46E5 100%);
+      color: #FFFFFF;
+      font-weight: 700;
+      box-shadow: 0 4px 16px var(--hm-glow-primary), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+
+    /* 2.2 无界极光下划线 Tab (Luminous Aurora Underline) */
+    .hm-luminous-tabs {
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid var(--hm-rim-light);
+      padding-bottom: 8px;
+      width: 100%;
+    }
+
+    .hm-tab-nav {
+      position: relative;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--hm-text-tertiary);
+      cursor: pointer;
+      padding-bottom: 10px;
+      transition: all 0.22s ease;
+    }
+
+    .hm-tab-nav:hover {
+      color: var(--hm-text-secondary);
+    }
+
+    .hm-tab-nav.active {
+      color: var(--hm-text-primary);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .hm-tab-nav.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 3px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #00D5FF, #0A59F7);
+      box-shadow: 0 0 12px #00D5FF;
+    }
+
+    /* 2.3 沉浸微晶 Chips (Filter Chips - 顶部栏优化所用) */
+    .hm-chips-cluster {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+
+    .hm-chip {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: var(--hm-radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--hm-text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--hm-rim-light);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s var(--hm-spring-smooth);
+      white-space: nowrap;
+    }
+
+    .hm-chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .hm-chip.active {
+      background: linear-gradient(135deg, rgba(10, 89, 247, 0.95), rgba(99, 102, 241, 0.95));
+      border-color: rgba(0, 213, 255, 0.5);
+      color: #fff;
+      box-shadow: 0 3px 12px var(--hm-glow-primary);
+    }
+
+    .hm-chip .active-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #00D5FF;
+      box-shadow: 0 0 6px #00D5FF;
+    }
+
+    /* ========================================================
+       3. 开关与选框组件 (Switch & Controls) - 果冻回弹光场
+       ======================================================== */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      align-items: center;
+    }
+
+    /* 3.1 沉浸光感果冻 Switch (Luminous Jelly Switch) */
+    .hm-switch {
+      position: relative;
+      width: 52px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: var(--hm-radius-pill);
+      border: 1px solid var(--hm-rim-light);
+      cursor: pointer;
+      transition: all 0.28s var(--hm-spring-bounce);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hm-switch .switch-handle {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      transition: all 0.28s var(--hm-spring-bounce);
+    }
+
+    .hm-switch.checked {
+      background: linear-gradient(135deg, #0A59F7, #00D5FF);
+      border-color: transparent;
+      box-shadow: 0 0 16px var(--hm-glow-primary);
+    }
+
+    .hm-switch.checked .switch-handle {
+      transform: translateX(22px);
+      box-shadow: -2px 2px 8px rgba(10, 89, 247, 0.5);
+    }
+
+    /* 3.2 拟物微光 Checkbox 复选框 */
+    .hm-checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--hm-text-secondary);
+      user-select: none;
+    }
+
+    .hm-checkbox-box {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.2px solid var(--hm-rim-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.22s var(--hm-spring-smooth);
+    }
+
+    .hm-checkbox:hover .hm-checkbox-box {
+      border-color: var(--hm-luminous-cyan);
+    }
+
+    .hm-checkbox.checked .hm-checkbox-box {
+      background: linear-gradient(135deg, #0A59F7, #7847EB);
+      border-color: transparent;
+      box-shadow: 0 3px 12px var(--hm-glow-primary);
+    }
+
+    .hm-checkbox-box svg {
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s var(--hm-spring-bounce);
+      stroke: #fff;
+    }
+
+    .hm-checkbox.checked .hm-checkbox-box svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* 3.3 鸿蒙星环 Radio 单选框 */
+    .hm-radio {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--hm-text-secondary);
+      user-select: none;
+    }
+
+    .hm-radio-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.2px solid var(--hm-rim-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .hm-radio-inner {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: transparent;
+      transition: all 0.2s var(--hm-spring-bounce);
+    }
+
+    .hm-radio.checked .hm-radio-circle {
+      border-color: #0A59F7;
+      box-shadow: 0 0 10px var(--hm-glow-primary);
+    }
+
+    .hm-radio.checked .hm-radio-inner {
+      background: linear-gradient(135deg, #00D5FF, #0A59F7);
+      box-shadow: 0 0 6px #00D5FF;
+      transform: scale(1.1);
+    }
+
+    /* ========================================================
+       4. 滑块与沉浸进度条 (Sliders & Progress Rings)
+       ======================================================== */
+    .slider-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--hm-text-secondary);
+    }
+
+    .hm-slider-track {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .hm-slider-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 68%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #00D5FF, #0A59F7);
+      box-shadow: 0 0 12px rgba(10, 89, 247, 0.6);
+    }
+
+    .hm-slider-thumb {
+      position: absolute;
+      top: 50%;
+      left: 68%;
+      transform: translate(-50%, -50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4), 0 0 10px #00D5FF;
+      border: 3px solid #0A59F7;
+      cursor: grab;
+      transition: transform 0.15s;
+    }
+
+    .hm-slider-thumb:hover {
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    /* ========================================================
+       5. 输入框与搜索栏 (Input & Search)
+       ======================================================== */
+    .hm-input-field {
+      position: relative;
+      width: 100%;
+    }
+
+    .hm-input-control {
+      width: 100%;
+      height: 46px;
+      border-radius: var(--hm-radius-md);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--hm-rim-light);
+      padding: 0 16px 0 42px;
+      font-size: 14px;
+      color: var(--hm-text-primary);
+      outline: none;
+      backdrop-filter: blur(16px);
+      transition: all 0.25s var(--hm-spring-smooth);
+    }
+
+    .hm-input-control::placeholder {
+      color: var(--hm-text-tertiary);
+    }
+
+    .hm-input-control:focus {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #0A59F7;
+      box-shadow: 0 0 20px var(--hm-glow-primary), inset 0 1px 0 var(--hm-rim-light-highlight);
+    }
+
+    .hm-input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--hm-text-tertiary);
+      pointer-events: none;
+    }
+
+    /* ========================================================
+       6. 悬浮岛与卡片容器 (Floating Dock & Island Surface)
+       ======================================================== */
+    .dock-showcase {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .hm-island-dock {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--hm-radius-pill);
+      background: rgba(14, 21, 37, 0.82);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid var(--hm-rim-light);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 1px var(--hm-rim-light-highlight);
+    }
+
+    .hm-dock-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--hm-radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--hm-text-secondary);
+      cursor: pointer;
+      transition: all 0.2s var(--hm-spring-smooth);
+    }
+
+    .hm-dock-action.active {
+      background: linear-gradient(135deg, #0A59F7, #4F46E5);
+      color: #FFFFFF;
+      box-shadow: 0 3px 12px var(--hm-glow-primary);
+    }
+
+    /* 状态指示与代码导出悬浮条 */
+    .export-footer-bar {
+      margin-top: 56px;
+      background: var(--hm-color-surface-glass);
+      backdrop-filter: blur(30px);
+      border: 1px solid var(--hm-rim-light);
+      border-radius: var(--hm-radius-lg);
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .export-info h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .export-info p {
+      font-size: 13px;
+      color: var(--hm-text-secondary);
+    }
+
+    .code-action-btn {
+      padding: 10px 22px;
+      border-radius: var(--hm-radius-pill);
+      background: linear-gradient(135deg, #0A59F7, #00D5FF);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px var(--hm-glow-primary);
+      transition: transform 0.2s;
+    }
+
+    .code-action-btn:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 沉浸式环境光场背景 -->
+  <div class="ambient-aurora"></div>
+  <div class="ambient-aurora-2"></div>
+
+  <div class="page-container">
+
+    <!-- 顶部状态栏 -->
+    <header class="top-meta-nav">
+      <div class="brand-logo-area">
+        <div class="harmony-symbol"></div>
+        <div class="brand-text">
+          <h1>
+            <span>HarmonyOS 7</span>
+            <span class="version-tag">LUMINOUS v7.0</span>
+          </h1>
+          <p>沉浸光感设计语言规范 · 全场景通用组件库</p>
+        </div>
+      </div>
+
+      <button class="theme-toggle-btn" onclick="toggleTheme()">
+        <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <span id="themeText">切换浅色微光</span>
+      </button>
+    </header>
+
+    <!-- 鸿蒙 7 沉浸光感设计哲学 Banner -->
+    <section class="philosophy-banner">
+      <div class="philo-intro">
+        <h2>万物光生，通透无界</h2>
+        <p>
+          结合华为官方最新 HarmonyOS 沉浸光感美学与鸿蒙 7 设计规范。
+          打破传统平铺直叙的平面暗色，引入「双向折射光场」、「高斯透镜悬浮」与「果冻阻尼回弹」，
+          在保证信息层级清晰的同时，赋予组件生命力与呼吸感。
+        </p>
+      </div>
+      <div class="pillars-grid">
+        <div class="pillar-item">
+          <div class="pillar-title">
+            <span class="pillar-icon"></span>
+            <span>折射微光边缘 (Rim Light)</span>
+          </div>
+          <div class="pillar-desc">0.8px 高光描边微折射，模拟纯净水晶切面的边缘漫反射。</div>
+        </div>
+        <div class="pillar-item">
+          <div class="pillar-title">
+            <span class="pillar-icon" style="background:#7847EB; box-shadow:0 0 10px #7847EB;"></span>
+            <span>星云渐变色谱 (Nebula Palette)</span>
+          </div>
+          <div class="pillar-desc">深邃靛蓝与极光青绿交织，提供层次分明的信息聚焦力。</div>
+        </div>
+        <div class="pillar-item">
+          <div class="pillar-title">
+            <span class="pillar-icon" style="background:#FF3388; box-shadow:0 0 10px #FF3388;"></span>
+            <span>空间悬浮岛 (Spatial Island)</span>
+          </div>
+          <div class="pillar-desc">组件脱离单调贴底，以胶囊浮岛形态自然漂浮于画卷上方。</div>
+        </div>
+        <div class="pillar-item">
+          <div class="pillar-title">
+            <span class="pillar-icon" style="background:#00E599; box-shadow:0 0 10px #00E599;"></span>
+            <span>自然非线性弹性 (Spring Curve)</span>
+          </div>
+          <div class="pillar-desc">模拟物理世界重力阻尼，按压缩放自然回弹，指尖触碰极度跟手。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 组件库系统展示 -->
+    <div class="components-grid">
+
+      <!-- 1. 按钮组件库 (Button System) -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <h3>晶耀按钮族 (Button Matrix)</h3>
+            <p class="caption">分级触控响应，内高光漫反射与光场弥散阴影</p>
+          </div>
+          <span class="component-spec-badge">@Component Button</span>
+        </div>
+        <div class="preview-box">
+          <div class="button-row">
+            <!-- 主按钮 -->
+            <button class="hm-btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>光感主操作</span>
+            </button>
+
+            <!-- 玻璃辅按钮 -->
+            <button class="hm-btn-secondary">
+              <span>晶透次级</span>
+            </button>
+
+            <!-- 图标按钮 -->
+            <button class="hm-btn-icon" title="刷新">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+            </button>
+
+            <!-- 胶囊幽灵按钮 -->
+            <button class="hm-btn-ghost">
+              <span>LENS 极光</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 标签栏与切换器 (Tab & Segmented Systems) -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <h3>选项卡与胶囊栏 (Tabs & Chips)</h3>
+            <p class="caption">流光分段滑块、极光呼吸下划线与微晶 Chips</p>
+          </div>
+          <span class="component-spec-badge">Segment / Tabs</span>
+        </div>
+        <div class="preview-box">
+          <!-- 悬浮流动分段器 -->
+          <div class="hm-segmented-dock">
+            <div class="hm-seg-item active" onclick="switchSegment(this)">精选画廊</div>
+            <div class="hm-seg-item" onclick="switchSegment(this)">热门榜单</div>
+            <div class="hm-seg-item" onclick="switchSegment(this)">最新原画</div>
+          </div>
+
+          <!-- 微晶过滤 Chips (针对顶部优化核心) -->
+          <div class="hm-chips-cluster">
+            <div class="hm-chip active" onclick="toggleChip(this)">
+              <span class="active-dot"></span>
+              <span>Picsum 推荐</span>
+            </div>
+            <div class="hm-chip" onclick="toggleChip(this)">
+              <span>Konachan</span>
+            </div>
+            <div class="hm-chip" onclick="toggleChip(this)">
+              <span>Yandere</span>
+            </div>
+            <div class="hm-chip" onclick="toggleChip(this)">
+              <span>WaifuPics</span>
+            </div>
+          </div>
+
+          <!-- 无界极光下划线 -->
+          <div class="hm-luminous-tabs">
+            <div class="hm-tab-nav active" onclick="switchLineTab(this)">壁纸精选</div>
+            <div class="hm-tab-nav" onclick="switchLineTab(this)">插画创作</div>
+            <div class="hm-tab-nav" onclick="switchLineTab(this)">动态Live</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 开关与选框 (Switch & Checkbox) -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <h3>果冻选择控件 (Selection Controls)</h3>
+            <p class="caption">物理弹性阻尼回弹，自发光高亮激活态</p>
+          </div>
+          <span class="component-spec-badge">Toggle / Checkbox</span>
+        </div>
+        <div class="preview-box">
+          <div class="controls-row">
+            <!-- 果冻光感 Switch -->
+            <div class="hm-switch checked" onclick="this.classList.toggle('checked')" title="点击切换开关">
+              <div class="switch-handle"></div>
+            </div>
+
+            <!-- 复选框 Checkbox -->
+            <div class="hm-checkbox checked" onclick="this.classList.toggle('checked')">
+              <div class="hm-checkbox-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <span>HDR 原色画质</span>
+            </div>
+
+            <!-- 单选框 Radio -->
+            <div class="hm-radio checked" onclick="toggleRadio(this)">
+              <div class="hm-radio-circle">
+                <div class="hm-radio-inner"></div>
+              </div>
+              <span>自动适应铺满</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 滑块与沉浸进度 (Slider & Progress) -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <h3>流光滑块 (Luminous Slider)</h3>
+            <p class="caption">连续光晕轨迹跟随，高对比度双层微透镜</p>
+          </div>
+          <span class="component-spec-badge">Slider</span>
+        </div>
+        <div class="preview-box">
+          <div class="slider-container">
+            <div class="slider-label-row">
+              <span>毛玻璃模糊强度 (Blur Radius)</span>
+              <span id="sliderValueText" style="color: #00D5FF; font-weight:700;">68%</span>
+            </div>
+            <div class="hm-slider-track" id="sliderTrack">
+              <div class="hm-slider-fill" id="sliderFill"></div>
+              <div class="hm-slider-thumb" id="sliderThumb"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 搜索与输入框 (Input System) -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <h3>光透搜索与输入 (Luminous Input)</h3>
+            <p class="caption">聚焦时光晕扩散扩散扩散，微晶倒角与内嵌透光</p>
+          </div>
+          <span class="component-spec-badge">Search / TextInput</span>
+        </div>
+        <div class="preview-box">
+          <div class="hm-input-field">
+            <span class="hm-input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input type="text" class="hm-input-control" placeholder="探索 4K 二次元壁纸、插画师与标签…">
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. 浮动岛导航胶囊 (Floating Dock Navigation) -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <h3>空间悬浮岛 (Island Dock)</h3>
+            <p class="caption">多图层亚克力堆叠，极度轻巧的底栏交互媒介</p>
+          </div>
+          <span class="component-spec-badge">Navigation Bar</span>
+        </div>
+        <div class="preview-box">
+          <div class="dock-showcase">
+            <div class="hm-island-dock">
+              <div class="hm-dock-action active" onclick="switchDock(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span>画廊浏览</span>
+              </div>
+              <div class="hm-dock-action" onclick="switchDock(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <span>收藏壁纸</span>
+              </div>
+              <div class="hm-dock-action" onclick="switchDock(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>偏好设置</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 底部规范导出引导 -->
+    <div class="export-footer-bar">
+      <div class="export-info">
+        <h4>已准备好 ArkTS 规范映射代码</h4>
+        <p>所有组件尺寸、圆角曲率、阴影扩散与渐变值已严格对齐 HarmonyOS NEXT 渲染引擎标准。</p>
+      </div>
+      <button class="code-action-btn" onclick="alert('规范代码已就绪，可随时写入您的项目工程！')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        <span>查阅 ArkTS 规范定义</span>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-mode');
+      const text = document.getElementById('themeText');
+      text.innerText = isLight ? '切换深空光感' : '切换浅色微光';
+    }
+
+    function switchSegment(el) {
+      el.parentElement.querySelectorAll('.hm-seg-item').forEach(item => item.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function toggleChip(el) {
+      el.parentElement.querySelectorAll('.hm-chip').forEach(c => {
+        c.classList.remove('active');
+        const dot = c.querySelector('.active-dot');
+        if (dot) dot.remove();
+      });
+      el.classList.add('active');
+      const dot = document.createElement('span');
+      dot.className = 'active-dot';
+      el.prepend(dot);
+    }
+
+    function switchLineTab(el) {
+      el.parentElement.querySelectorAll('.hm-tab-nav').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function toggleRadio(el) {
+      el.parentElement.querySelectorAll('.hm-radio').forEach(r => r.classList.remove('checked'));
+      el.classList.add('checked');
+    }
+
+    function switchDock(el) {
+      el.parentElement.querySelectorAll('.hm-dock-action').forEach(d => d.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // 交互滑块模拟
+    const track = document.getElementById('sliderTrack');
+    const fill = document.getElementById('sliderFill');
+    const thumb = document.getElementById('sliderThumb');
+    const valText = document.getElementById('sliderValueText');
+
+    let isDragging = false;
+    function updateSlider(e) {
+      const rect = track.getBoundingClientRect();
+      let percent = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+      percent = Math.max(0, Math.min(100, percent));
+      fill.style.width = percent + '%';
+      thumb.style.left = percent + '%';
+      valText.innerText = percent + '%';
+    }
+
+    track.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      updateSlider(e);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) updateSlider(e);
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+  </script>
+</body>
+</html>
