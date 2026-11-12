@@ -21,6 +21,10 @@ class AppThemeColors {
   overlaySurface: string = ''
   background: string = ''
   galleryTitle: string = ''
+  galleryHeaderTop: string = ''
+  galleryAccent: string = ''
+  gallerySelection: string = ''
+  galleryMuted: string = ''
   galleryControlText: string = ''
   controlBackground: string = ''
   textPrimary: string = ''
@@ -65,8 +69,12 @@ export class AppTheme {
     secondaryButton: '#F1F5F9',
     secondaryButtonText: '#1E293B',
     overlaySurface: '#FFFFFF',
-    background: '#F8FAFC',
+    background: '#EEF2F9',
     galleryTitle: '#0F172A',
+    galleryHeaderTop: '#E2ECFF',
+    galleryAccent: '#054ACB',
+    gallerySelection: '#E2ECFF',
+    galleryMuted: '#5C6C84',
     galleryControlText: '#1E293B',
     controlBackground: '#F1F5F9',
     textPrimary: '#0F172A',
@@ -102,8 +110,12 @@ export class AppTheme {
     secondaryButton: '#1E293B',
     secondaryButtonText: '#F8FAFC',
     overlaySurface: '#131B2E',
-    background: '#0B0F19',
+    background: '#080C14',
     galleryTitle: '#F8FAFC',
+    galleryHeaderTop: '#102039',
+    galleryAccent: '#00D5FF',
+    gallerySelection: '#12335A',
+    galleryMuted: '#93A3BE',
     galleryControlText: '#F8FAFC',
     controlBackground: '#1E293B',
     textPrimary: '#F8FAFC',

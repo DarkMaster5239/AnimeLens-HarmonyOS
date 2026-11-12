@@ -39,7 +39,7 @@ export struct AnimeLensNavigation {
       const mainWindow = await window.getLastWindow(context)
       mainWindow.setWindowBackgroundColor(background)
       await mainWindow.setWindowSystemBarProperties({
-        statusBarColor: this.currentIndex === 1 ? (dark ? '#102039' : '#E2ECFF') : background,
+        statusBarColor: AppTheme.color(dark).galleryHeaderTop,
         navigationBarColor: background,
         statusBarContentColor: dark ? '#FFFFFF' : '#0F172A',
         navigationBarContentColor: dark ? '#FFFFFF' : '#0F172A'

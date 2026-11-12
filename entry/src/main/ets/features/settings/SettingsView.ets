@@ -39,9 +39,6 @@ struct SettingsLuminousChoice {
   build() {
     Button({ type: ButtonType.Capsule }) {
       Row({ space: 6 }) {
-        if (this.optionSelected) {
-          Text('✓').fontSize('12fp').fontColor(this.isDark ? '#00D5FF' : '#054ACB')
-        }
         Text(this.optionLabel)
         .fontSize('14fp')
         .fontWeight(this.optionSelected ? FontWeight.Medium : FontWeight.Normal)
@@ -277,10 +274,9 @@ export struct SettingsView {
         .backgroundColor(this.palette().surface).borderRadius(24)
         .border({ width: 1, color: this.palette().border })
 
-        ListItem() { Column().height(12) }
+        ListItem() { Column().height(this.bottomInset + 12) }
       }
       .width('100%').layoutWeight(1).padding({ left: 20, right: 20 })
-      .margin({ bottom: this.bottomInset })
       .scrollBar(BarState.Off)
     }
     .width('100%').height('100%').backgroundColor(this.palette().background)

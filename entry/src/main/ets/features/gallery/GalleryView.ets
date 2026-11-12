@@ -387,34 +387,36 @@ export struct GalleryView {
 
   build() {
     Column() {
-      // 1. Frosted Navigation Header with Horizontal Chips
+      // Luminous header: quiet surfaces and a single blue-cyan selection accent.
       Column() {
         Row() {
-          Column({ space: 2 }) {
+          Column({ space: 6 }) {
             Text('ACG绘见')
-              .fontSize(22)
+              .fontSize('28fp')
               .fontWeight(FontWeight.Bold)
               .fontColor(AppTheme.color(this.isDark).galleryTitle)
             Text('精选二次元插画与壁纸')
-              .fontSize(11)
-              .fontColor(AppTheme.color(this.isDark).textMuted)
+              .fontSize('13fp')
+              .fontColor(AppTheme.color(this.isDark).galleryMuted)
           }
-          .alignItems(HorizontalAlign.Start)
+          .alignItems(HorizontalAlign.Start).layoutWeight(1)
 
-          Blank()
-
-          GlassIconButton({
-            icon: $r('app.media.icon_refresh'),
-            label: '刷新画廊',
-            isDark: this.isDark,
-            btnSize: 44,
-            iconSize: 18,
-            busy: this.refreshing,
-            onAction: () => { this.refresh() }
-          })
+          Button({ type: ButtonType.Circle }) {
+            if (this.refreshing) {
+              LoadingProgress().width(20).height(20).color(AppTheme.color(this.isDark).galleryAccent)
+            } else {
+              Image($r('app.media.icon_refresh')).width(20).height(20)
+                .fillColor(AppTheme.color(this.isDark).galleryAccent)
+            }
+          }
+          .width(48).height(48)
+          .backgroundColor(AppTheme.color(this.isDark).gallerySelection)
+          .enabled(!this.refreshing)
+          .accessibilityText(this.refreshing ? '正在刷新画廊' : '刷新画廊')
+          .onClick(() => { this.refresh() })
         }
         .width('100%')
-        .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+        .padding({ left: 20, right: 20, top: 16, bottom: 12 })
 
         if (this.enabledSources.length > 0) {
           Scroll() {
@@ -422,41 +424,37 @@ export struct GalleryView {
               ForEach(this.enabledSources, (config: SourceConfig) => {
                 Button({ type: ButtonType.Capsule }) {
                   Text(config.name)
-                    .fontSize(12)
-                    .fontWeight(this.currentSource === config.type ? FontWeight.Bold : FontWeight.Medium)
-                    .fontColor(this.currentSource === config.type ? Color.White : AppTheme.color(this.isDark).textSecondary)
+                    .fontSize('14fp')
+                    .fontWeight(this.currentSource === config.type ? FontWeight.Medium : FontWeight.Normal)
+                    .fontColor(this.currentSource === config.type ? AppTheme.color(this.isDark).galleryAccent : AppTheme.color(this.isDark).textSecondary)
+                    .padding({ top: 10, bottom: 10 })
                 }
-                .height(44)
+                .constraintSize({ minHeight: 48 })
                 .padding({ left: 16, right: 16 })
                 .borderRadius(22)
                 .backgroundColor(this.currentSource === config.type ?
-                  AppTheme.color(this.isDark).primaryButton :
-                  AppTheme.color(this.isDark).glassControl)
-                .linearGradient({ direction: GradientDirection.Right, colors: this.currentSource === config.type ?
-                  [['#3B82F6', 0], ['#4F46E5', 1]] : [['#00000000', 0], ['#00000000', 1]] })
-                .border({
-                  width: this.currentSource === config.type ? 0 : 0.8,
-                  color: AppTheme.color(this.isDark).glassBorder
-                })
+                  AppTheme.color(this.isDark).gallerySelection : Color.Transparent)
+                .accessibilitySelected(this.currentSource === config.type)
                 .accessibilityText(`${config.name}${this.currentSource === config.type ? '，已选中' : ''}`)
                 .onClick(() => {
                   this.switchSource(config.type)
                 })
               }, (config: SourceConfig) => `${config.type}_${config.name}`)
             }
-            .padding({ left: 16, right: 16, bottom: 8 })
+            .padding({ left: 20, right: 20, bottom: 12 })
           }
           .scrollable(ScrollDirection.Horizontal)
           .scrollBar(BarState.Off)
         }
       }
       .width('100%')
-      .height(this.isHeaderVisible ? (this.enabledSources.length > 0 ? 112 : 60) : 0)
+      .height(this.isHeaderVisible ? undefined : 0)
       .opacity(this.isHeaderVisible ? 1 : 0)
       .clip(true)
-      .backgroundColor(AppTheme.color(this.isDark).glassSurface)
-      .backgroundBlurStyle(BlurStyle.Thin)
-      .border({ width: { bottom: 0.8 }, color: AppTheme.color(this.isDark).glassBorder })
+      .linearGradient({ direction: GradientDirection.Bottom, colors: [
+        [AppTheme.color(this.isDark).galleryHeaderTop, 0],
+        [AppTheme.color(this.isDark).background, 1]
+      ] })
       .animation({ duration: 220, curve: Curve.EaseInOut })
 
       // 2. Waterfall Feed
